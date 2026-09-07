@@ -1,0 +1,12 @@
+name = "sakan-4u"
+main = "worker/index.ts"
+compatibility_date = "2026-08-26"
+compatibility_flags = [ "nodejs_compat" ]
+
+[vars]
+VITE_SUPABASE_URL = "https://aoyfkgcjxsrhtqvanger.supabase.co"
+VITE_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4rresvAQDuO7b5eyvt56NQ_hdGD16Ei"
+RESEND_API_KEY = "re_LBsQv3th_NTs9KnFUv6vuYVAUM67JpfDq"
+
+[assets]
+directory = "dist/public"

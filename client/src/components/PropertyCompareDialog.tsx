@@ -1,0 +1,27 @@
+import { X, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { formatEgp, type PropertyView } from "@/lib/marketplace";
+import { parseDistanceMinutes } from "@/lib/propertyFilters";
+
+type CompareRow = {
+  label: string;
+  kind: "numeric" | "qualitative";
+  getValue: (property: PropertyView) => string;
+  getComparable?: (property: PropertyView) => number | string | null;
+  direction?: "min" | "max";
+};
+
+export default function PropertyCompareDialog({ properties, open, onOpenChange, onRemove, onClear }: { properties: PropertyView[]; open: boolean; onOpenChange: (open: boolean) => void; onRemove: (id: string) => void; onClear: () => void }) {
+  const rows: CompareRow[] = [
+    { label: "السعر", kind: "numeric", direction: "min", getValue: property => `${formatEgp(property.monthlyPrice)} ${property.rentType === "bed" ? "جنيه/سرير" : "جنيه/شهرياً"}`, getComparable: property => property.monthlyPrice },
+    { label: "المسافة عن الحرم", kind: "numeric", direction: "min", getValue: property => property.distanceToCampus ?? "غير محددة", getComparable: property => parseDistanceMinutes(property.distanceToCampus) },
+    { label: "الغرف", kind: "numeric", direction: "max", getValue: property => `${property.bedrooms} غرف`, getComparable: property => property.bedrooms },
+    { label: "الحمامات", kind: "numeric", direction: "max", getValue: property => `${property.bathrooms} حمام`, getComparable: property => property.bathrooms },
+    { label: "نوع الإيجار", kind: "qualitative", getValue: property => property.rentType === "bed" ? "تأجير بالسرير" : "الشقة كاملة" },
+    { label: "الفئة", kind: "qualitative", getValue: property => property.genderPreference === "male" ? "للشباب" : property.genderPreference === "female" ? "للطالبات" : "مناسب للجميع" },
+    { label: "المرافق المشمولة", kind: "qualitative", getValue: property => property.utilitiesIncluded.length ? property.utilitiesIncluded.join("، ") : "لا توجد بيانات" },
+  ];
+
+  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent dir="rtl" className="max-h-[90dvh] w-[calc(100vw-2rem)] max-w-5xl overflow-y-auto rounded-2xl border-[#dbeafe] bg-[#f8fafc] p-0 text-[#0f172a]"><DialogHeader className="border-b border-[#e2e8f0] bg-white px-5 py-4"><div className="flex items-center justify-between gap-3"><div><DialogTitle className="text-xl font-black">مقارنة العقارات</DialogTitle><p className="mt-1 text-xs font-semibold text-[#64748b]">قارن حتى ثلاثة خيارات قبل اتخاذ قرارك.</p></div><Button type="button" variant="outline" onClick={onClear} className="h-9 rounded-lg border-[#cbd5e1] text-xs font-extrabold">مسح الكل</Button></div></DialogHeader>{properties.length ? <div className="overflow-x-auto overscroll-x-contain p-5"><div className="min-w-[620px] overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-sm"><div className="sticky top-0 z-20 grid border-b border-[#e2e8f0] bg-[#eff6ff] shadow-sm" style={{ gridTemplateColumns: `150px repeat(${properties.length}, minmax(150px, 1fr))` }}><div className="p-4 text-sm font-black text-[#475569]">المعيار</div>{properties.map(property => <div key={property.id} className="border-r border-[#dbeafe] p-4"><div className="line-clamp-2 text-sm font-black text-[#0f172a]">{property.title}</div><button type="button" onClick={() => onRemove(property.id)} className="mt-3 inline-flex min-h-8 items-center justify-center gap-1.5 rounded-lg border border-[#fecaca] bg-[#fef2f2] px-3 text-[11px] font-extrabold text-[#b91c1c] transition-colors hover:bg-[#fee2e2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ef4444]" aria-label={`إزالة ${property.title} من المقارنة`}><X className="h-3.5 w-3.5" />إزالة العقار</button></div>)}</div>{rows.map(row => { const comparableValues = row.kind === "numeric" ? properties.map(property => row.getComparable?.(property) ?? null) : []; const validValues = comparableValues.filter((value): value is number => typeof value === "number" && Number.isFinite(value)); const bestValue = validValues.length > 1 ? (row.direction === "max" ? Math.max(...validValues) : Math.min(...validValues)) : null; const values = properties.map(row.getValue); const isDivergent = row.kind === "qualitative" && new Set(values).size > 1; return <div key={row.label} className={`grid border-b last:border-b-0 ${isDivergent ? "border-[#e2e8f0] bg-[#f8fafc]" : "border-[#f1f5f9]"}`} style={{ gridTemplateColumns: `150px repeat(${properties.length}, minmax(150px, 1fr))` }}><div className={`p-4 text-xs font-black text-[#475569] ${isDivergent ? "bg-[#f1f5f9]" : "bg-[#f8fafc]"}`}>{row.label}{isDivergent && <span className="mr-1 text-[10px] font-bold text-[#64748b]">(مختلف)</span>}</div>{properties.map((property, index) => { const value = values[index]; const isBest = row.kind === "numeric" && bestValue !== null && comparableValues[index] === bestValue; return <div key={property.id} className={`border-r p-4 text-sm font-bold ${isBest ? "border-[#bbf7d0] bg-[#f0fdf4] text-[#15803d]" : isDivergent ? "border-[#e2e8f0] bg-[#f8fafc] text-[#334155]" : "border-[#f1f5f9] text-[#0f172a]"}`} aria-label={isBest ? `${value} — أفضل قيمة` : value}>{isBest && <Check className="ml-1 inline h-4 w-4" aria-hidden="true" />}{value}</div>; })}</div>; })}</div></div> : <p className="p-8 text-center text-sm font-bold text-[#64748b]">اختر عقارين أو أكثر لبدء المقارنة.</p>}</DialogContent></Dialog>;
+}

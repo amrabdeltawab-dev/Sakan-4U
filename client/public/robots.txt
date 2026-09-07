@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /account
+Disallow: /owner
+Disallow: /admin
+Disallow: /super-admin
+Disallow: /reset-password
+Disallow: /favorites
+
+Sitemap: /sitemap.xml

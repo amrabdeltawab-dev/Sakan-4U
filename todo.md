@@ -1,0 +1,482 @@
+# Project TODO
+
+- [x] Define multi-role user profile, listing, media, verification evidence, and booking request schema with strict role ownership.
+- [x] Apply database migration for persisted users, property listings, verification state, booking requests, and listing media metadata.
+- [x] Build public Arabic-first RTL home page with a polished responsive housing discovery experience.
+- [x] Add public property search and optional filters for housing type, neighborhood, monthly price, gender suitability, rooms, and key amenities.
+- [x] Build property detail route with image gallery, verified facts, availability, amenity list, approximate location, university context, and booking-request CTA.
+- [x] Add a managed map experience with public approximate pinning, nearby university context, and directions link.
+- [x] Build authenticated student booking submission and personal request-status workspace.
+- [x] Build owner workspace with listing overview, multi-step property creation, listing edits, media management, availability controls, and booking responses.
+- [x] Build admin review workspace for pending listings with approve, needs-changes, reject, and verified evidence actions.
+- [x] Complete and verify tRPC procedures and role-aware authorization for public browsing, booking requests, listings, verification, and media.
+- [x] Confirm student-only booking actions and owner-only listing access through router-level authorization tests.
+- [x] Implement secure managed object-storage upload and serving flow for property photos and verification documents.
+- [x] Add graceful unauthenticated and empty states, accessible interactions, and responsive layouts at mobile, tablet, and desktop sizes.
+- [x] Write Vitest coverage for authorization, listing visibility, filters, booking transitions, and review actions.
+- [x] Run type checks and tests, visually inspect core routes, fix found issues, and record all completed work.
+- [x] Perform a read-only audit of SAKENO's active frontend, backend, database, authentication, storage, migrations, integrations, repository, security posture, and production blockers.
+- [x] Deliver a technical audit report with a safe Supabase migration plan if the active architecture does not use Supabase for production services.
+- [x] Inspect the authoritative Supabase SAKENO project, its schema, migrations, Auth, Storage, RLS, and security advisors without deleting or overwriting existing data.
+- [x] Inspect the authoritative Supabase SAKENO project, its schema, migrations, Auth, Storage, RLS, and security advisors without deleting or overwriting existing data.
+- [x] Design and apply non-destructive PostgreSQL migrations for profiles, properties, media, bookings, role boundaries, foreign keys, constraints, indexes, and RLS policies.
+- [x] Design and apply non-destructive PostgreSQL migrations for profiles, properties, media, bookings, role boundaries, foreign keys, constraints, indexes, and RLS policies.
+- [x] Configure only safe Supabase runtime credentials and migrate the Node/tRPC backend to Supabase PostgreSQL, Auth validation, and secure storage access.
+- [x] Configure only safe Supabase runtime credentials and migrate the Node/tRPC backend to Supabase PostgreSQL, Auth validation, and secure storage access.
+- [x] Replace legacy OAuth with full Arabic-first Supabase Auth: login, student/owner signup, email verification, session restore, logout, password reset, and expired-link handling.
+- [x] Replace legacy OAuth with full Arabic-first Supabase Auth: login, student/owner signup, email verification, session restore, logout, password reset, and expired-link handling.
+- [x] Implement server-validated role onboarding and enforce Student, Owner, Admin, and Super Admin protected routes and authorization boundaries.
+- [x] Implement server-validated role onboarding and enforce Student, Owner, Admin, and Super Admin protected routes and authorization boundaries.
+- [x] Move public property images and private verification evidence to separately secured Supabase Storage buckets with authorization-scoped access.
+- [x] Move public property images and private verification evidence to separately secured Supabase Storage buckets with authorization-scoped access.
+- [x] Preserve current marketplace workflows while removing production use of hardcoded demo listings and clearly separating any development fixtures.
+- [x] Preserve current marketplace workflows while removing production use of hardcoded demo listings and clearly separating any development fixtures.
+- [x] Add and run tests for Supabase Auth, RLS-sensitive authorization, private media access, role-promotion denial, and required user journeys.
+- [x] Add and run tests for Supabase Auth, RLS-sensitive authorization, private media access, role-promotion denial, and required user journeys.
+- [x] Produce the final Supabase migration report, required production configuration checklist, and validated release checkpoint.
+- [x] Produce the final Supabase migration report, required production configuration checklist, and validated release checkpoint.
+- [x] Confirm end-to-end email verification and password-reset links against allowlisted application URLs, including invalid and expired recovery behavior.
+- [x] Add an explicit Super Admin management surface or documented operational path for privileged role administration.
+- [x] Validate browser-level login, logout, session restoration, protected-route access, and unauthorized-role redirects using real Supabase sessions.
+- [x] Save a post-migration release checkpoint after all final validation work is complete.
+- [x] Validate the configured live email-confirmation and password-recovery callback URLs, then refresh the migration report with the final results.
+- [x] Save and deliver the post-migration release checkpoint after the final Supabase checks pass.
+- [x] Fix reset-password handling so an invalid or expired Supabase recovery link cannot display a password form because of an unrelated existing session.
+- [x] Inspect the live Supabase Auth sign-up response and determine whether email delivery rate limiting rejects registration before user creation.
+- [ ] Capture a real user-triggered Supabase sign-up error's non-sensitive message, code, and status through the updated UI or browser diagnostics without submitting a synthetic registration.
+- [x] Improve Arabic registration feedback for Supabase email rate limits while preserving email confirmation and secure Auth behavior.
+- [ ] Verify successful student and owner registration show the email-confirmation state, then rerun focused Auth tests and report the correct SMTP development/production configuration.
+- [x] Document the confirmed default Supabase email-service limitation and provide the secure custom SMTP rollout checklist before asking for a real external registration retest.
+- [x] Document the confirmed default Supabase email-service limitation and provide the secure custom SMTP rollout checklist before asking for a real external registration retest.
+- [x] Perform a read-only post-migration audit of Supabase Auth, session handling, server authentication, roles, RLS, storage, booking authorization, owner workflow, database integrity, and direct-access risks.
+- [x] Run existing security/auth tests without modifying application behavior and deliver a classified PASS/WARNING/HIGH RISK/CRITICAL audit report with remediation guidance.
+- [x] Fix H-01 so an owner property update verifies caller-scoped ownership before any privileged media withdrawal and add a cross-owner IDOR regression test.
+- [x] Fix H-02 by removing direct owner writes to the public property-images bucket, preserving staged owner upload and trusted publication flow, and add an RLS regression test.
+- [x] Fix W-01 by replacing repeated email-based Super Admin promotion with a one-time immutable bootstrap binding that preserves the existing bootstrap identity and supports revocation.
+- [x] Add and run targeted H-01, H-02, and W-01 regression tests; inspect live RLS/storage policies; run all tests, type checks, and production build.
+- [x] Save and deliver the scoped security-remediation checkpoint with remaining-concern summary.
+- [x] Inspect the existing booking statuses, workflow behavior, router mutations, RLS, and direct Supabase update controls without changing unrelated functionality.
+- [x] Define and implement a role-aware, database-enforced booking previous-to-next state machine while preserving ownership and current statuses.
+- [x] Route booking status mutations through the secure transition mechanism and add regressions for valid, invalid, cross-user, cross-owner, and direct API bypass attempts.
+- [x] Run full tests, type checks, production build, and live policy/function inspection for the scoped booking-integrity remediation.
+- [x] Save and deliver the scoped booking-integrity checkpoint with its allowed transition matrix.
+- [x] Inspect property media records, storage buckets and path conventions, existing deletion routes, and live storage policies without changing unrelated functionality.
+- [x] Design and implement authorized, idempotent server-side cleanup for property and profile deletion across public, staging, and private media objects.
+- [x] Add regressions for authorized and unauthorized cleanup, all media buckets, missing objects, and orphan prevention; run full validation and live policy inspection.
+- [x] Save and deliver the scoped storage-retention checkpoint with the final property and profile deletion flow.
+- [x] Review the supplied property-location privacy requirements and inspect current coordinate, address, property API, and map handling.
+- [x] Implement only the specified property-location privacy controls while preserving authorized owner and staff workflows.
+- [x] Add requested location-privacy regression coverage, run full validation and live policy inspection, then save and deliver the scoped checkpoint.
+- [x] Save and deliver the scoped property-location privacy checkpoint with the final public and authorized location access summary.
+- [x] Inspect existing booking creation, secure transition RPC usage, property details CTA, student/owner workspaces, and current role/RLS controls.
+- [x] Define active-request eligibility and implement server-side student booking creation safeguards without changing the existing state machine.
+- [x] Connect the property-details request UX and existing student/owner workspaces to the secure booking flow with targeted Arabic RTL states.
+- [x] Preserve the property route through unauthenticated booking sign-in so a student can return to the same listing after successful login.
+- [x] Add requested booking-flow authorization and lifecycle regressions; run full tests, typecheck, build, and live inspection.
+- [x] Save and deliver the scoped booking-flow checkpoint with the final security and duplicate-request summary.
+- [x] Prepare isolated test accounts and a verified available listing for read-only real-UI booking-flow verification.
+- [x] Verify registration/login, return-to-property, booking creation, duplicate handling, owner visibility, and role-appropriate status updates through the real UI.
+- [ ] Verify a routable temporary student registration reaches the email-confirmation success state through the real UI.
+- [ ] Re-check the same listing after a first active request to record the exact duplicate-request prevention state exposed by the UI.
+- [ ] Preserve the missing admin booking-completion control as an explicit UI verification failure; do not implement a fix in this read-only task.
+- [ ] Report each observed UI failure separately without modifying the implementation.
+- [x] Inspect the student confirmation UI action, current Admin workspace, and existing secure booking list/transition procedures.
+- [x] Correct the student-confirmation success toast and add secured Admin/Super Admin booking management with only the existing final completion transition.
+- [x] Add regressions for the corrected message and role-authorized final completion; run full tests, typecheck, build, and live control inspection.
+- [x] Align the Admin workspace’s frontend staff gate with the existing Admin/Super Admin backend policy and add explicit Super Admin list/completion regressions.
+- [x] Save and deliver the scoped booking UI checkpoint with the corrected-message and Admin completion summary.
+- [x] Inspect the configured Bootstrap Super Admin reference and immutable binding without changing secrets, roles, or account records.
+- [x] Confirm the bound account remains present in Supabase Auth and profiles, then report its requested identifier details read-only.
+- [x] Inspect the one-time UUID-bound Bootstrap Super Admin code, migration safeguards, and configured identity reference without making changes.
+- [x] Provide the exact safe provisioning sequence for the missing initial Bootstrap Super Admin account without creating users, changing roles, or exposing secrets.
+- [x] Verify the configured bootstrap identity, matching Auth user, profile role, and immutable binding state without changing data.
+- [x] Trace the server-side one-time bootstrap invocation and private RPC conditions read-only, then report the exact failure and required fix without applying it.
+- [x] Add a service-role-only public bootstrap RPC façade that delegates to the existing private one-time authoritative function.
+- [x] Validate the existing configured account is promoted only through the normal authenticated bootstrap path, receives exactly one UUID binding, and preserves restricted RPC access.
+- [x] Add focused regression coverage, run the validation suite, and save the scoped bootstrap repair checkpoint.
+- [x] Save a new webdev checkpoint for the scoped Bootstrap RPC façade repair after the passing validation suite.
+- [x] Audit existing booking APIs, RLS policies, workspace projections, contact-data exposure, and payment integrations for the intermediary viewing flow.
+- [x] Confirm package dependencies and application source contain no existing payment-provider, checkout, transaction, or payment-intent integration; retain payment as staff-verified state pending a real provider configuration.
+- [x] Add the smallest secure viewing-fee data model, single pricing authority, and staff-controlled payment state without creating fake payment success or a parallel booking state machine.
+- [x] Enforce server/database contact-data privacy and authorized viewing/payment actions for students, owners, admins, and Super Admins.
+- [x] Update only the relevant property, student, owner, and staff surfaces with Arabic viewing-request, fee, payment-state, and coordination information.
+- [x] Add direct API/RLS regressions and run full tests, typecheck, production build, live security inspection, and UI verification for the scoped workflow.
+- [x] Save and deliver the scoped intermediary viewing-flow checkpoint with implementation, privacy, payment, validation, and remaining-configuration details.
+- [x] Preserve the existing student cancellation path from owner confirmation until a viewing is completed, then rerun scoped validation and checkpoint the compatibility correction.
+- [x] Inspect the current viewing-fee quote, capacity/bedroom rule mismatch, and disabled inspection-request UI path.
+- [x] Replace viewing-fee pricing with database-authoritative property-capacity tiers of 600, 900, and 1,000 EGP while preserving historical snapshots and request authorization.
+- [x] Repair Arabic quote display, fee-resolution error feedback, and valid-form submission enablement without trusting a client fee value.
+- [x] Add capacity-tier, attendee-independence, client-override, historical-fee, UI-state, privacy, and authorization regressions; run live integration tests, typecheck, and production build.
+- [x] Save and deliver the scoped capacity-fee repair checkpoint with remaining payment-provider limitation.
+- [x] Audit the live inspection request, fee storage, payment state, staff/owner/student projections, RLS, RPC grants, contact-data exposure, and intermediary bypass boundaries without changing behavior.
+- [x] Define a provider-neutral server-authoritative payment and settlement readiness model while retaining the explicit no-direct-contact policy and no fake payment success constraint.
+- [x] Implement only the necessary private payment-ledger abstractions, trusted staff confirmation path, and Admin/Student operational projections without integrating an arbitrary provider.
+- [x] Add anti-bypass and payment-integrity regressions, inspect live policies/RPC permissions, and validate that existing intermediary workflow protections remain intact.
+- [x] Save and deliver the scoped commercial/payment-readiness checkpoint with exact remaining real-provider and business-decision requirements.
+- [x] Add a service-role-only provider payment-confirmation RPC that creates financial evidence and processes duplicate provider callbacks idempotently without browser access.
+- [x] Add direct regressions for provider confirmation authorization, amount/reference verification, duplicate-event idempotency, and protected ledger state before final delivery.
+- [x] Perform a read-only Core Product Audit of architecture, workflows, roles, state machine, privacy, property operations, finances, inspection lifecycle, notifications, discovery, authentication, errors, UX, security, and test quality.
+- [x] Inspect live Supabase RLS, grants, RPC controls, schema, storage, and security advisory posture read-only; do not change data, policies, roles, or configuration.
+- [x] Deliver the requested evidence-based audit report with Executive Summary, completion/defect classifications, risks, test gaps, prioritized backlog, and recommended work sequence without modifying the project.
+- [x] Inspect safe Supabase Auth configuration controls, current user-management data/deletion dependencies, and existing storage cleanup operations without changing users.
+- [x] Enable and verify Supabase leaked-password protection if supported by the authorized project configuration; otherwise document the exact tooling blocker without simulating the setting.
+- [x] Defer leaked-password protection at the user’s instruction because the Supabase Free plan does not provide the required real Auth setting; preserve existing email confirmation, SMTP, and password behavior.
+- [x] Implement an accessible Arabic RTL mobile public navigation with working existing routes, close behavior, and unchanged desktop navigation.
+- [x] Add a paginated Super Admin-only user-management list, explicit deletion confirmation, server-side self/Super-Admin safeguards, audit records, and secure Auth/profile/property/media cleanup without acting on existing accounts.
+- [x] Add focused authorization, deletion-lifecycle, mobile-navigation, and Auth-security regressions; validate live RLS/RPC/configuration controls without deleting existing users.
+- [x] Save and deliver the scoped checkpoint after the full test suite, TypeScript check, production build, and responsive UI verification.
+- [x] Inspect the public map component, browser/network failure, browser-safe Maps configuration path, and current public versus private location projections without exposing or changing exact locations.
+- [x] Repair public Google Maps loading, approximate-marker/directions behavior, and Arabic fallback handling without weakening location privacy or unrelated SAKENO workflows.
+- [x] Ensure property-specific approximate locations vary safely where the current creation flow uses a fixed public point, while keeping exact coordinates and street data private.
+- [x] Add focused map privacy, directions, fallback, configuration-exposure, and approximate-location variation regressions; validate browser behavior, full tests, type checking, and production build.
+- [x] Save and deliver the scoped public-map repair checkpoint with any required manual configuration step.
+- [x] Inspect existing owner property creation, staged media upload, media cleanup, Admin review, and storage/RLS controls without modifying existing records.
+- [x] Implement a single owner-facing property submission workflow that requires validated property photos, shows Arabic previews and primary-image selection, and safely handles upload failure and cleanup.
+- [x] Implement ownership-scoped editable-property media controls and media-aware Admin/Super Admin moderation that requires photos and an explicit suitability confirmation before approval.
+- [x] Add focused property-photo, failed-submission, ownership, moderation, private-evidence, exact-location, and mobile-flow regressions; validate relevant live controls without acting on existing accounts or listings.
+- [x] Run the full test suite, TypeScript check, production build, browser verification, and save/deliver the scoped property-media workflow checkpoint.
+- [x] Inspect the current media schema, publication/withdrawal lifecycle, SAKENO brand asset, installed image-processing support, and live storage policies without modifying existing media.
+- [x] Add persistent owner-scoped image ordering and optional description/tag metadata with validated server contracts and moderation visibility.
+- [x] Add server-only watermark derivative processing that preserves private originals, publishes only successful derivatives after approval, invalidates stale public derivatives, and supports safe staff retry.
+- [x] Improve owner photo selection with accessible drag-and-drop/touch reordering and truthful per-image waiting, processing, uploaded, failed, and retry states.
+- [x] Add focused order, metadata, watermark, derivative privacy, failure/retry, authorization, and mobile UX regressions; validate live RLS/storage controls without touching existing accounts or listings.
+- [x] Run browser verification with temporary data, full tests, type checking, and production build; save and deliver the scoped media-enhancement checkpoint.
+- [x] Inspect the current staff media review, property decision contracts, owner resubmission feedback, and existing staged/public media boundaries without changing records.
+- [x] Improve Admin/Super Admin staged-image inspection with ordered cover indicators, owner metadata, upload/derivative status, and accessible enlarged previews.
+- [x] Enforce an explicit staff confirmation that images depict the actual property before approval, and require a media-quality reason for media-based rejection without trusting client moderation state.
+- [x] Improve owner-visible media-rejection feedback and staged-image resubmission controls while preserving cross-owner denial and approved-media moderation gates.
+- [x] Add focused staff/non-staff, confirmation/rejection-reason, ownership, watermark, privacy, and public-publication regressions; validate live RLS/storage controls without modifying existing users or listings.
+- [x] Run browser verification with temporary data, full tests, type checking, production build, and save/deliver the scoped media-moderation checkpoint.
+- [x] Inspect the live properties_description_check definition, properties.description type/constraints, server submission schema, and final owner-form payload without changing database rules.
+- [x] Align required description validation and Arabic client feedback with the existing database business rule, without weakening integrity or unrelated creation/media logic.
+- [x] Add regression coverage for empty, whitespace-only, too-short, and valid descriptions while preserving the 3–12 media submission lifecycle and review state.
+- [x] Validate a temporary owner’s full UI submission, associated staged images, review state, relevant tests, TypeScript check, production build, and save/deliver the scoped checkpoint.
+- [x] Audit existing booking, property-review, owner-application, payment, and viewing transition paths plus live realtime/RLS capabilities for in-app notifications.
+- [x] Add an RLS-protected notification data model, owner-scoped server contracts, unread/read operations, idempotency controls, and server-only event generation.
+- [x] Integrate privacy-safe Student, Owner, Admin, and Super Admin workflow notifications without changing existing business state machines or rules.
+- [x] Add an Arabic RTL responsive notification bell and panel with unread count, timestamps, secure navigation, and live updates.
+- [x] Add notification privacy, authorization, idempotency, unread-state, and workflow-regression tests; validate live policies, TypeScript, production build, and browser behavior.
+- [x] Save and deliver the scoped in-app notifications checkpoint.
+- [x] Audit live notification recipient-generation functions, event triggers, RLS policies, RPC grants, and Realtime publication against per-recipient isolation requirements.
+- [x] Correct staff-recipient fan-out so every currently authorized Admin/Super Admin gets an isolated notification row without broad read access or client-controlled recipients. The existing database function already met this requirement; regression coverage now proves it.
+- [x] Add regression coverage for student/owner/staff isolation, per-staff recipient delivery, direct cross-staff row denial, read-state ownership, idempotency, and revoked-staff behavior.
+- [x] Run live RLS/workflow validation, relevant tests, TypeScript check, and production build for the scoped recipient-rules validation.
+- [x] Save and deliver the scoped recipient-rules checkpoint.
+- [x] Audit the current end-to-end workflow, live RLS/security controls, and temporary-data cleanup paths before exercising the real UI.
+- [x] Validate isolated owner onboarding, role approval, multi-step property creation, media ordering/metadata/cover, moderation, watermarking, public discovery, and location privacy.
+- [x] Validate isolated student discovery, duplicate-safe viewing requests, capacity fee, role-scoped mediation data, manual payment, scheduling/rescheduling/cancellation/no-show, completion, and notifications.
+- [x] Validate Super Admin controls, direct-access security regressions, desktop/mobile UI regressions, then clean all temporary test records and run TypeScript/build validation.
+- [x] Deliver the requested PASS/FAIL/BLOCKED end-to-end validation report with exact verified scope and production blockers.
+- [x] Fix the `/login` mobile layout so the RTL authentication form has no horizontal clipping or overflow at 360px, 375px, and 390px while preserving desktop behavior and authentication logic.
+- [x] Audit the existing booking, payment, notification, RLS, and UI workflow to define secure appointment-exception boundaries without touching production records.
+- [x] Implement database-enforced reschedule requests, staff-confirmed reschedules, reasoned cancellations, staff-recorded no-shows, manual refund decisions, and immutable operational history.
+- [x] Add role-scoped Student, Owner, Admin, and Super Admin exception-management UI with privacy-safe projections and internal notifications.
+- [x] Add comprehensive authorization, transition, audit, notification, RLS, and financial-regression coverage; validate with isolated temporary data and clean it completely.
+- [x] Run tests, TypeScript, production build, and visual verification; save and deliver the scoped appointment-exception checkpoint.
+- [x] Audit the current owner property/media management, deletion cleanup, moderation lifecycle, RLS, and booking-history dependencies.
+- [x] Define and implement state-aware owner property editing, safe availability/hide actions, re-review behavior, and server-authorized safe deletion rules.
+- [x] Enhance owner media management for ordered cover selection, replacement, metadata, upload feedback, and owner-only controls while preserving staged/private publication.
+- [x] Add a clear Arabic RTL My Properties management experience with state-specific actions, destructive confirmation, and privacy-safe summaries.
+- [x] Add ownership, IDOR, deletion-safety, media, moderation-state, RLS, and authorization regression coverage using isolated temporary data and cleanup.
+- [x] Run full tests, TypeScript, production build, visual validation, then save and deliver the scoped property-management checkpoint.
+- [x] Audit the delivered owner property/media management against the complete lifecycle requirements, including drafts, re-submission, Super Admin deletion, and immutable lifecycle audit.
+- [x] Add database-enforced draft, submit/resubmit, hide/unhide, lifecycle-audit, and safe Super Admin deletion operations without changing booking, payment, privacy, or authentication rules.
+- [x] Complete owner, Admin, and Super Admin UI for lifecycle states, moderation media inspection, rejection reasons, and guarded actions.
+- [x] Add regression coverage for lifecycle state boundaries, audit immutability, Super Admin safe deletion, ownership, media cleanup, privacy, and moderation requirements.
+- [x] Run full tests, TypeScript, production build, live temporary-account validation, cleanup, checkpoint, and final implementation report.
+- [x] Ensure the live Supabase integration suite removes only its own temporary Auth, profile, property, storage, notification, and lifecycle-audit records even after safe property deletion.
+- [x] Audit all existing internal notification events, RLS isolation, trusted creation paths, and privacy-safe notification content.
+- [x] Close verified notification-event gaps and add server-protected, RLS-scoped user notification preferences only where appropriate.
+- [x] Improve Arabic RTL notification navigation, unread/read, loading, error, empty, and responsive mobile states without exposing private records.
+- [x] Audit Student, Owner, Admin, and Super Admin loading, empty, error, unauthorized, completed, pending, and action-required states; fix only confirmed defects.
+- [x] Verify genuine mobile responsiveness defects at 360px, 375px, 390px, and 412px across the requested role and notification surfaces.
+- [x] Add notification/security/UX regression coverage, run live isolated validation and cleanup, then save and report the scoped checkpoint.
+- [x] Replace the confirmed raw Super Admin user-list error text with an Arabic safe retry state.
+- [x] Audit exact/public property-coordinate columns, existing approximate projections, RLS policies, tRPC contracts, and the public map implementation.
+- [x] Add persistent public latitude/longitude and a trusted one-time 200–300m obfuscation operation on property creation or exact-location update.
+- [x] Ensure public and student property projections expose only public coordinates while owner/staff paths retain authorized exact-coordinate access.
+- [x] Replace the public property map pin and directions action with a 300m approximate-location circle and the required Arabic privacy notice.
+- [x] Add location-obfuscation/RLS/map regression coverage; run live validation, TypeScript, production build, and save the scoped checkpoint.
+- [x] Audit the active owner property wizard, exact-location procedures, review contract, and Admin review component for required location and description changes.
+- [x] Make owner property creation require an exact building pin, starting from Beni Suef, and pass validated exact coordinates through the protected creation workflow.
+- [x] Add the required Arabic description privacy warning and allow Admin/Super Admin to edit a reviewed property description through a protected contract before approval.
+- [x] Add validation, ownership, and review-edit regression coverage; run TypeScript, full tests, browser checks, and save the scoped checkpoint.
+- [x] Audit the Admin verification queue query, exact-detail projection, original-description visibility, decision contracts, and route guards without assuming current behavior.
+- [x] Validate live Supabase RLS/grants and tRPC enforcement so only Admin/Super Admin can list, edit, approve, request changes, or reject; prove Student/Owner denial.
+- [x] Fix any confirmed gap in pre-approval description editing, decision reasons/status transitions, exact-detail visibility, or protected Admin access.
+- [x] Add/extend strict Admin review workflow regressions; run full tests, TypeScript, production build, live authorization checks, and save the scoped checkpoint.
+- [x] Audit the Homepage search, sort controls, detailed filters, property-grid state, and existing responsive behavior without changing server contracts.
+- [x] Implement client-side newest, price-low-to-high, and price-high-to-low sorting for visible homepage property results.
+- [x] Consolidate the homepage into one search bar and move detailed filters into an accessible Arabic RTL filter drawer, modal, or popover.
+- [x] Add targeted UI regressions, run TypeScript and visual responsive verification, then save the scoped checkpoint.
+- [x] Audit notification read mutations and UI event wiring, plus viewing acceptance, property availability projections, public cards, and details CTA behavior.
+- [x] Repair current-user single and bulk notification read handling with immediate cache/UI updates and preserved recipient isolation.
+- [x] Ensure accepted viewing requests reserve the property while reserved listings remain publicly visible with the required Arabic badge and a disabled viewing CTA.
+- [x] Add focused regression coverage; run TypeScript, full validation, visual checks, and save the scoped checkpoint.
+- [x] Audit React/Vite routes, student/owner registration forms, current document metadata, public assets, and root error handling without changing Auth or tRPC.
+- [x] Add Arabic RTL terms and privacy routes and require explicit linked legal-consent confirmation in both registration forms.
+- [x] Add React/Vite-compatible default and property-detail metadata, robots.txt, sitemap.xml, and an Arabic global crash fallback with reload action.
+- [x] Add focused regression coverage; run type checks, production build, visual checks, and save the scoped checkpoint.
+- [x] Audit the actual signup transport, server contracts, raw HTML delivery model, and global error boundary before assuming backend/SSR enforcement.
+- [x] Add and validate a server-enforced legal-consent boundary for student and owner signup attempts, proving rejected attempts create no Supabase Auth user or profile.
+- [x] Programmatically verify raw property HTML metadata behavior and either implement SSR-capable metadata delivery or document the architecture-level limitation truthfully.
+- [x] Add a real error-boundary crash test, run the strict validation suite and release checks, then save the scoped checkpoint.
+- [x] Allow Vitest to discover TSX component tests so the runtime crash-boundary test is executed rather than silently excluded.
+- [x] Route raw property-page HTML through server metadata injection before Vite static middleware so dynamic tags cannot be bypassed in development.
+- [x] Inspect existing favorites, public listing, property-detail, owner-media, authentication, and review-queue contracts without changing current controls.
+- [x] Add a student-owned favorites data model with restrictive Supabase RLS and protected tRPC list/toggle contracts.
+- [x] Add Arabic RTL favorite controls, a protected `/favorites` page, property sharing, public listing pagination, and loading states without changing booking logic.
+- [x] Enhance owner image upload presentation with progress, accessible drag-and-drop reordering, predefined image tags, description character count, and paste whitespace normalization.
+- [x] Add Admin review rejection templates and a protected quick preview using the existing student-safe public property view.
+- [x] Add focused tests, verify Supabase RLS policies remain restrictive, run TypeScript and production-build validation, then save the scoped checkpoint.
+- [x] Inspect existing Admin/Super Admin, booking, account, route, and empty-state contracts before extending them.
+- [x] Add restrictive role-scoped aggregate dashboard statistics and secure self-profile update contracts backed by Supabase RLS.
+- [x] Build Arabic RTL Admin statistics, authenticated profile settings, empty-state CTAs, and custom SAKENO 404 surfaces.
+- [x] Add focused authorization and UI tests, inspect live RLS, run TypeScript and production-build validation, then save the scoped checkpoint.
+- [x] Scope the profile-read helper to the authenticated UUID so staff users never receive an ambiguous multi-row settings result.
+- [x] Align profile-security regressions with the stricter column-level update grant while retaining proof of cross-user and role-escalation denial.
+- [x] Improve the custom 404 brand mark contrast against its dark surface after visual verification.
+- [x] Inspect the current password-change, property-detail, favorites, and Admin viewing-coordination flows before changing secure behavior.
+- [x] Require and verify the current password before a Supabase Auth password change, with Arabic failure handling and no password persistence.
+- [x] Add the existing student-only favorite toggle to the property-detail page alongside sharing and booking actions.
+- [x] Replace expanded Admin viewing-request controls with a responsive summary table and on-demand management dialog or accordion.
+- [x] Add focused security and UI regressions, verify RLS boundaries, run release checks, and save the scoped checkpoint.
+- [x] Keep the current-password integration fixture isolated from the shared public client session used by public-visibility regressions.
+- [x] Inspect local Git and authenticated GitHub state before securely backing up the current project source.
+- [x] Commit the current SAKENO working tree using the requested MVP completion message without application-code changes.
+- [x] Create or connect the private `sakeno-mvp` GitHub repository, push `main`, and verify the remote commit URL.
+- [x] Inspect current upload, deletion, public discovery, Admin contact, and booking-relation flows without altering existing Supabase controls.
+- [x] Add database-authoritative soft deletion for properties and ensure public/admin discovery excludes archived records while preserving bookings and related history.
+- [x] Add client-side owner image compression before storage upload and show truthful Arabic progress or error feedback.
+- [x] Add student/owner WhatsApp contact links to Admin request management and public similar-property recommendations with safe exclusions.
+- [x] Add focused regressions, inspect live RLS and relation integrity, run TypeScript/build validation, then save the scoped checkpoint.
+- [x] Assert that direct nonstaff staff-booking RPC access returns no contact data under its existing row-level guard.
+- [x] Remove the direct owner property DELETE RLS policy so archival is the only authenticated lifecycle path.
+- [x] Inspect existing private storage, owner property-media submission, and Admin review contracts without altering user registration.
+- [x] Add a private `verification_documents` bucket, document metadata, and restrictive owner/staff Supabase RLS policies with no public access.
+- [x] Add optional Arabic owner verification-document submission to property creation/editing and secure Admin/Super Admin document review in the property queue.
+- [x] Add direct storage/RLS and UI regressions, run TypeScript and production validation, then save the scoped checkpoint.
+- [x] Correct the protected owner/admin workspace access gate so its RTL card fits a 375px viewport during verification-flow access.
+- [x] Audit the current owner verification-document model and booking request contract for secure mandatory-ID and consent enforcement.
+- [x] Require a private National ID image for owner property submission while keeping utility-bill/contract evidence optional and reviewable only by staff.
+- [x] Add an Arabic owner name-match reminder and strict client/server validation for the required identity document.
+- [x] Require and persist student acceptance of the Arabic viewing-request terms through client and server validation before booking creation.
+- [x] Add privacy, authorization, validation, RTL UI, and release regressions; run full tests, type checks, production build, and save the scoped checkpoint.
+- [x] Restore the active owner property wizard’s pasted-description normalization after consolidating duplicate creation flows.
+- [x] Correct the remaining 375px protected-workspace entry overflow observed during mandatory-verification mobile validation.
+- [x] Commit the validated mandatory verification and booking-consent changes to the active Git branch.
+- [x] Push the active branch to the configured GitHub repository and verify the remote commit.
+- [x] Audit all Drizzle references and root Markdown/text artifacts before repository cleanup.
+- [x] Remove the confirmed unused Drizzle directory, Drizzle configuration, and temporary development reports while retaining required project documentation.
+- [x] Run project structure checks, the test suite, TypeScript validation, and production build after cleanup.
+- [x] Commit the repository cleanup with the requested message and push the verified main branch to GitHub.
+- [x] Draft a professional Arabic README with the requested product overview, badges, feature groups, screenshots placeholders, technology stack, and local setup guidance.
+- [x] Review the README Markdown and commit/push it to GitHub main with remote verification.
+- [x] Audit production package dependencies and the Express server listener for deployment-pruning and health-check compatibility.
+- [x] Move required production runtime tooling to dependencies and configure the server to bind `0.0.0.0` on `process environment.PORT` with an 8080 fallback.
+- [x] Validate the production build and an isolated dynamic-port health response, then commit and push the requested deployment fix.
+- [x] Audit all tracked project metadata, HTML, source, and UI files for boilerplate platform and powered-by branding references.
+- [x] Remove confirmed boilerplate branding without changing essential runtime integration behavior or SAKENO product identity.
+- [x] Verify source branding removal, TypeScript, production build, and commit/push the requested cleanup to GitHub main.
+- [x] Make the raw property-metadata integration assertion deterministic when a fixture relies on the server’s area fallback for an absent approximate location.
+- [x] Audit shared style tokens, reusable UI components, and active public/authenticated page surfaces for the current orange/navy visual treatment.
+- [x] Establish the requested blue/slate/emerald design system and reusable motion, card, spacing, and state treatments.
+- [x] Redesign the light public homepage hero, centered authentication pages, property cards, and authenticated workspace surfaces without changing business logic.
+- [x] Add/update source regressions and validate desktop/mobile visuals, TypeScript, tests, production build, then checkpoint and push the requested Git commit.
+- [x] Correct the protected workspace access gate’s remaining 375px RTL clipping discovered during the design-system mobile review.
+- [x] Commit the completed blue-palette UI/UX redesign with the requested message and push the verified main branch to GitHub.
+- [x] Audit the current homepage hero, property-listing grid, and steps composition for the reported empty and unbalanced layout.
+- [x] Replace the dotted hero with a premium balanced visual composition and reinforce content containment, borders, and shadows.
+- [x] Center the responsive property grid and rebuild the steps section into a balanced three-column layout without altering discovery logic.
+- [x] Add structural regressions, validate desktop/mobile screenshots, TypeScript, tests, production build, then checkpoint and push the homepage repair.
+- [x] Commit the completed homepage structure repair and push the verified main branch to GitHub.
+- [x] Audit the property-listing grid and filter relationship for RTL alignment without altering visual styling.
+- [x] Align property cards from the RTL start edge and correct responsive filter/grid spacing only.
+- [x] Add/update scoped regression coverage and validate the RTL-aligned grid at desktop and 375px mobile widths; commit the requested RTL grid fix.
+- [x] Audit the current listing card dimensions, content hierarchy, favorite action, and existing share behavior.
+- [x] Refine only the property-card media ratio, spacing, and readable detail hierarchy while retaining the blue visual system.
+- [x] Visually verify the refined property-card proportions and exterior share/favorite actions at desktop and 375px RTL mobile widths.
+- [x] Add a direct exterior share button beside the favorite action and validate it with focused regression coverage.
+- [x] Commit the validated property-card refinement to GitHub main with the requested message.
+- [x] Audit the current listing-grid breakpoints and property-card width behavior for sparse desktop result sets.
+- [x] Add the four-column large-screen grid and a compact maximum width while preserving RTL anchoring and card controls.
+- [x] Add/update regressions and validate the compact RTL card grid at 1440px desktop and 375px mobile widths.
+- [x] Commit the requested desktop property-card sizing update to GitHub main.
+- [x] Audit current property schema, Supabase migrations/RLS, owner create/edit contracts, and public listing types for rent-by-bed compatibility.
+- [x] Add database-authoritative rent_type and conditional total_beds support with protected server-side validation and projections.
+- [x] Update the owner property workflow with a full-apartment/bed-rental selection and conditional total-bed input.
+- [x] Add Arabic RTL discovery tabs and property-card rent-by-bed badges, price labels, and available-bed information without changing the current grid system.
+- [x] Verify the rent-type tabs and the preserved RTL listing grid at 1440px desktop and 375px mobile widths.
+- [x] Add and run database/API/UI regressions, complete suite, TypeScript, production build, responsive visual checks, and live Supabase schema/RLS confirmation.
+- [x] Save a checkpoint and commit the validated rent-by-bed feature to GitHub main with the requested message.
+- [x] Audit existing property inventory fields, booking state-transition RPCs/triggers, and owner/Admin booking projections for bed-rental request context.
+- [x] Add a database-authoritative available_beds counter and atomic authorized confirmation logic that decrements only successful bed-rental confirmations.
+- [x] Preserve public bed-rental visibility only while inventory remains, and prevent additional valid bed requests when no beds remain.
+- [x] Add explicit full-apartment/bed request context to owner and Admin booking views, plus bed-specific student card availability and CTA copy.
+- [x] Verify the retained RTL marketplace controls and compact cards at 1440px desktop and 375px mobile widths.
+- [x] Add and run inventory, authorization, visibility, dashboard/UI regressions, full validation, and visual checks.
+- [x] Save a checkpoint for the validated bed-rental booking inventory enhancement.
+- [x] Audit terminal booking reversal states: confirmed bed inventory already restores for cancellation/rejection; the terminal no-show path needs the same restoration.
+- [x] Implement and test the missing authorized no-show inventory restoration path; confirmed cancellation/rejection behavior remains protected.
+- [x] Validate the cancellation, rejection, no-show, and non-restoration-on-completion behavior with live and full regressions.
+- [x] Save a focused checkpoint for the verified bed-inventory restoration correction.
+- [x] Audit the existing share interaction, property media data, grid loading state, rent-by-bed availability text, routes, and error-boundary fallback.
+- [x] Add card-level copied-link feedback, a bounded property-grid skeleton state, and direct card-media carousel controls without altering property data logic.
+- [x] Add a one-bed urgency treatment and branded Arabic 404/500 states with a homepage return action.
+- [x] Correct the horizontal overflow observed on the standalone Arabic 404 and 500 pages at a 375px viewport.
+- [x] Add focused regressions and validate RTL desktop/mobile behavior, TypeScript, full tests, and production build.
+- [x] Save a checkpoint and commit the validated UI polish to GitHub main with the requested message.
+- [x] Audit the existing public property contact projection, property-details sharing controls, marketplace no-results state, and server metadata injection; owner phone is deliberately excluded from public responses.
+- [x] Keep landlord contact private by implementing recipient-free WhatsApp sharing, then complete the resettable Arabic no-results state.
+- [x] Add global and dynamic property Open Graph metadata, including the approved main property image, to the server-delivered HTML.
+- [x] Add focused regression coverage and validate share links, raw metadata, RTL responsive UI, TypeScript, full tests, and production build.
+- [x] Save the marketing checkpoint, commit with the requested message, and verify GitHub main.
+- [x] Audit the owner property bathroom validation path and all current client error-notification sources.
+- [x] Normalize the bathroom field safely for the rent-by-bed form and provide clear Arabic field feedback before submission.
+- [x] Add a global interceptor that translates technical API and validation errors into Arabic top-center toast notifications.
+- [x] Add focused regressions and run full tests, TypeScript, production build, and visual checks.
+- [x] Save the validation and Arabic top-toast checkpoint, commit with the requested message, and verify GitHub main.
+- [x] Audit the current property-details WhatsApp action and property-card copied-link share behavior.
+- [x] Remove the redundant property-details WhatsApp control and use native card sharing with a copied-link fallback.
+- [x] Add focused share regressions and run full validation and visual checks.
+- [x] Save the sharing-refinement checkpoint, commit with the requested message, and verify GitHub main.
+- [x] Audit active property update and moderation flows, card interaction, signup switching, property submission closure, and the current admin review workspace.
+- [x] Add secure staged owner edits for verified active properties, including server-authorized review and atomic publication of approved edits.
+- [x] Make property cards fully navigable without breaking their inner controls, add direct student/owner signup switching, and close successful property submissions promptly.
+- [x] Replace the oversized admin property-review stack with a compact list and details review panel for pending listings and staged edits.
+- [x] Add backend and UI regressions; validate staged-edit privacy, authorization, routing, TypeScript, production build, and full tests.
+- [x] Save the staged-edits checkpoint, commit with the requested message, and verify GitHub main.
+- [x] Audit the current staged-edit decision data, owner dashboard projection, property-details media gallery, and favorites persistence path.
+- [x] Add an admin visual comparison of current versus proposed staged values and show the owner pending/rejected decision state.
+- [x] Add an accessible fullscreen property-image lightbox with high-resolution navigation and confirm favorites are solely Supabase-backed.
+- [x] Add regressions and run full tests, TypeScript, production build, and visual checks.
+- [x] Save the visual-diff and gallery checkpoint, commit with the requested message, and verify GitHub main.
+- [x] Audit the current Vite HTML shell and existing analytics tags for global tracking placement.
+- [x] Add the supplied GA4 Measurement ID with an asynchronous, non-render-blocking global loader.
+- [x] Add regression coverage and run TypeScript, production build, and tracking-markup verification.
+- [x] Save the GA4 checkpoint, commit with the requested message, and verify GitHub main.
+- [x] Audit public property access, owner-property projections, Super Admin aggregates, and existing detail-page lifecycle behavior.
+- [x] Add a database `views_count` and a secure, debounced property-view increment pathway that cannot expose or overwrite listing data.
+- [x] Display owner-only listing views and a Super Admin total property-views metric from the database.
+- [x] Add regression coverage; run full tests, TypeScript, production build, visual checks, checkpoint, and the requested GitHub main commit.
+- [x] Audit current property schema, owner creation/edit validation, wizard fields, and staff/public projections for the requested listing metadata.
+- [x] Add `distance_to_campus`, `utilities_included`, `video_url`, and `gender_preference` with database- and server-enforced rent-type rules.
+- [x] Add clear Arabic owner-form controls and preserve the fields through authorized owner, staff, and public property projections.
+- [x] Add regressions; run full validation, save a checkpoint, and commit the feature to GitHub main with the requested message.
+- [x] Backfill the existing legacy Rent by Bed listing to `male` / شباب and enforce no mixed fallback for new or edited bed listings.
+- [x] Apply the non-destructive schema migration, complete Arabic owner-form fields and validation, run all checks, checkpoint, and push the requested commit.
+
+**Scope note:** The two pending items above supersede the earlier metadata implementation checklist after the user confirmed the legacy bed-listing value.
+- [x] Audit property normalization, cards, details, and existing modal/state patterns for metadata display, video, and comparison.
+- [x] Display campus distance, utilities, and gender preference badges on property cards and details using safe public data.
+- [x] Add the responsive video walkthrough modal and a temporary max-three property comparison drawer/table.
+- [x] Add regressions; run full validation, save a checkpoint, and commit the UI enhancement to GitHub main with the requested message.
+- [x] Audit validation-toast triggers, global toast deduplication, and current compare-dialog responsive behavior.
+- [x] Restrict validation error toasts to form submission and suppress duplicate identical global messages.
+- [x] Polish the compare dialog with mobile horizontal scrolling, sticky property headers, and prominent Arabic removal controls.
+- [x] Add regressions, run full validation, save a checkpoint, and commit the scoped UX fixes to GitHub main.
+- [x] Audit the homepage search, filter drawer, sorting, and public property metadata shape for gender and campus-distance filtering.
+- [x] Add live gender and campus-distance filter state and apply it alongside existing search and sorting.
+- [x] Polish responsive Arabic filter controls for easy mobile use without disturbing current RTL layout.
+- [x] Add regressions, run full validation, save a checkpoint, and commit the filter feature to GitHub main.
+- [x] Audit the compare dialog row model and identify numeric versus qualitative comparison metrics.
+- [x] Add best-value highlighting for numeric price/distance metrics and divergence-only highlighting for qualitative rows.
+- [x] Preserve accessible RTL styling, mobile horizontal scrolling, sticky headers, and remove actions.
+- [x] Add regressions, run full validation, save a checkpoint, and commit the smart compare diff feature to GitHub main.
+- [x] Audit the Vite HTML shell, existing SEO tags, and public static-file structure.
+- [x] Add Arabic title/description, Open Graph tags, robots.txt, and sitemap.xml.
+- [x] Add SEO regressions and run TypeScript, production build, and static-asset validation.
+- [x] Save a checkpoint, commit the technical SEO changes, and verify GitHub main.
+- [x] Audit the Wrangler configuration and Vite build output for the Cloudflare assets-directory error.
+- [x] Add `[assets]` with `directory = "dist"` without changing unrelated deployment settings.
+- [x] Validate Wrangler configuration and Vite build compatibility.
+- [x] Save a checkpoint, commit the Cloudflare fix, and verify GitHub main.
+- [x] Audit the current Wrangler configuration and deployment fields.
+- [x] Add `compatibility_date = "2026-08-26"` and change the Worker name to `sakeno-mvp`, preserving the assets directory.
+- [x] Validate Wrangler configuration, regression coverage, TypeScript, and production build.
+- [x] Save a checkpoint, commit the Cloudflare configuration fix, and verify GitHub main.
+- [ ] Audit the current Node/Express tRPC entrypoint, router context, Wrangler configuration, and Vite asset routing.
+- [ ] Add a Cloudflare Fetch Adapter entrypoint using `fetchRequestHandler` for `/api/trpc/*`.
+- [ ] Preserve Vite static-asset routing and reconcile the worker deployment entrypoint.
+- [ ] Add regressions, validate the worker-compatible build, save a checkpoint, commit, and verify GitHub main.
+
+- [x] Refactor tRPC API routing to the Cloudflare Fetch Adapter with a default Worker fetch handler and preserve static asset fallback.
+- [x] Make the shared tRPC context compatible with Fetch Request and local Express requests.
+- [x] Keep Node-only Sharp watermark processing out of the eagerly bundled Cloudflare Worker graph and preserve the Node moderation build.
+- [x] Add and run Cloudflare Fetch Adapter regression coverage, full tests, TypeScript validation, and production build.
+- [x] Create the requested checkpoint and commit with message: fix: implement trpc fetch adapter for cloudflare
+
+- [x] Inspect the global Supabase initialization and Cloudflare tRPC context env flow for startup-time configuration access.
+- [x] Refactor Supabase client creation to use Cloudflare env bindings inside tRPC context while preserving local Express compatibility.
+- [x] Add regression coverage for dynamic Supabase runtime configuration and validate full tests, TypeScript, Worker bundle, and production build.
+- [x] Create a checkpoint and commit with message: fix: dynamically initialize supabase client in trpc context for cloudflare worker
+
+- [x] Audit the Cloudflare Worker entrypoint, tRPC adapter endpoint, frontend API base URL, and static asset fallback for the confirmed production 404/login loop.
+- [x] Move Supabase createClient calls into request-scoped tRPC context using Cloudflare VITE_SUPABASE_URL and publishable-key bindings.
+- [x] Route /api/* correctly to the tRPC Fetch Adapter and serve dist/public for non-API requests.
+- [x] Add route/config regressions and run auth-flow checks, full tests, TypeScript, Worker bundle, and production build.
+- [x] Save a checkpoint and report the confirmed Cloudflare runtime repair.
+
+- [x] Classify SAKENO/Sakeno/sakeno occurrences and identify only user-facing branding references for replacement.
+- [x] Rename visible branding and controlled metadata to the exact spelling Sakan 4U without changing technical identifiers.
+- [x] Verify remaining technical SAKENO references are intentionally preserved and confirm no data, security, or business logic changes.
+- [x] Run branding regressions, TypeScript, production build, desktop/mobile screenshots, and check for overflow.
+- [x] Save a checkpoint and report the branding-only rename.
+
+- [x] Inspect tRPC initialization, Worker Fetch Adapter context, and Supabase client creation for swallowed errors and missing env bindings.
+- [x] Add tRPC onError console.error logging, explicit Cloudflare Supabase binding validation, and global fetch compatibility to createClient.
+- [x] Add regression coverage and run focused/full tests, TypeScript, Worker bundle, and production build.
+- [x] Save a checkpoint and commit with message: fix: ensure supabase fetch compat and add trpc error logging
+
+- [x] Audit booking mutations, existing notification helpers, and Cloudflare env/context types for email integration points.
+- [x] Add a reusable Resend REST API fetch utility and request-scoped RESEND_API_KEY binding without installing the resend package.
+- [x] Send owner notification for new requests and student notifications for accepted/rejected owner decisions.
+- [x] Add notification regressions and run focused/full tests, TypeScript, Worker bundle, and production build.
+- [x] Save a checkpoint and commit with message: feat: implement resend email notifications via fetch for cloudflare compat
+
+- [x] Audit the Worker fetch signature, Fetch Adapter context callback, and ASSETS binding behavior for the reported production failures.
+- [x] Explicitly inject Cloudflare env into tRPC createContext and make static asset fallback safe when ASSETS is missing.
+- [x] Add routing regressions and run focused/full tests, TypeScript, Worker bundle, and production build.
+- [x] Save a checkpoint and commit with message: fix: correctly inject cloudflare env into trpc context and asset handler
+
+- [x] Revalidate the Worker env-injection and static asset fallback after the interrupted validation run.
+- [x] Confirm the exact requested Cloudflare Worker commit is present on main after successful validation.
+
+- [x] Trace the Fetch Adapter options into the inner tRPC createContext and identify where env is being dropped.
+- [x] Explicitly destructure env in createContext and pass it through contextFromAccessToken and createSupabaseClients.
+- [x] Add a regression for the inner context binding contract and run focused/full tests, TypeScript, Worker bundle, and production build.
+- [x] Save a checkpoint and commit with message: fix: extract and pass env bindings inside trpc createContext
+
+- [x] Inspect the actual createContext definition and Supabase factory for remaining server environment fallbacks.
+- [x] Strictly destructure env in the Fetch context and pass it to contextFromAccessToken and createSupabaseClients.
+- [x] Remove process environment/import.meta.env usage from server Supabase initialization and update regressions.
+- [x] Run focused/full tests, TypeScript, Worker bundle, and production build.
+- [x] Save a checkpoint and commit with message: fix: strictly destructure env in createContext and remove process environment usage
+
+- [x] Audit all ENV imports/usages and every process environment occurrence across the repository.
+- [x] Delete the obsolete ENV module and remove or migrate all remaining consumers without breaking required runtime bindings.
+- [x] Verify zero process environment usage and run Worker startup, tests, TypeScript, and production build checks.
+- [x] Save a checkpoint and commit with message: chore: remove garbage process environment boilerplate crashing the worker
+
+- [ ] Inspect GitHub workflows, deployment commands, Wrangler files, environments, and remotes without modifying application code.
+- [ ] Compare the repository Worker configuration and current build with the live Worker’s behavior and version signals.
+- [ ] Report exactly what deployment/configuration is running and why bindings are not reaching the existing context.
+- [ ] Apply only a configuration/deployment fix if available access and evidence support it; otherwise stop and request the required deployment access/action.
+- [ ] Verify production tRPC routes, static assets, and session restoration after any configuration fix.
+
+- [x] Rotate the server-only RESEND_API_KEY to the user-provided replacement without exposing it.
+- [x] Immediately validate the updated secret through the existing Resend utility test/configuration path without creating production records.
+- [x] Report what changed and whether notification delivery validation succeeded, without printing secret values.
+
+- [x] Inspect relevant booking/approval tRPC mutation success callbacks and existing Sonner integration.
+- [x] Add `toast.success('Email sent successfully!')` only in the relevant mutation `onSuccess` callbacks.
+- [x] Run focused tests, TypeScript, and production build; checkpoint and push the exact toast commit.
+
+- [ ] Create and work only on the `feat/ui-polish` branch; do not merge or push to `main`.
+- [ ] Add safe Arabic Sonner error notifications for important failed booking, moderation, approval, payment, email, and account/profile actions without exposing technical errors.
+- [ ] Add mutation/form loading states with disabled actions, spinners, and duplicate-click protection while preserving existing server safeguards.
+- [ ] Brand Sonner notifications for Sakan 4U with RTL Arabic typography, spacing, colors, radius, and responsive behavior.
+- [ ] Update user-facing SAKENO/sakeno branding to Sakan 4U while preserving internal technical identifiers.
+- [ ] Remove only genuinely unused affected debug/demo code while preserving production diagnostics and security/audit logs.
+- [ ] Run safe automated tests, TypeScript check, and production build; commit the final changes on `feat/ui-polish` with the requested message.
+- [ ] Report changed files, branding changes, toast/loading changes, validation results, branch, and commit hash.
