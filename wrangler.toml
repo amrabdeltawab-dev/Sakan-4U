@@ -6,7 +6,10 @@ compatibility_flags = [ "nodejs_compat" ]
 [vars]
 VITE_SUPABASE_URL = "https://aoyfkgcjxsrhtqvanger.supabase.co"
 VITE_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4rresvAQDuO7b5eyvt56NQ_hdGD16Ei"
-RESEND_API_KEY = "re_LBsQv3th_NTs9KnFUv6vuYVAUM67JpfDq"
+
+# Secrets — set via: wrangler secret put <NAME>
+#   SUPABASE_SERVICE_ROLE_KEY  — Supabase service role key (bypasses RLS, server-only)
+#   RESEND_API_KEY             — Resend email API key
 
 [assets]
 directory = "dist/public"
