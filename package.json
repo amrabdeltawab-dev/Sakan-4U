@@ -5,7 +5,9 @@
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development tsx watch server/_core/index.ts",
-    "build": "vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist && esbuild server/watermark.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/watermark.js",
+    "build": "vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist && esbuild server/watermark.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/watermark.js && esbuild server/watermark-service/index.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/watermark-service.js",
+    "build:watermark-service": "esbuild server/watermark-service/index.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/watermark-service.js",
+    "start:watermark-service": "node dist/watermark-service.js",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
