@@ -17,6 +17,8 @@ export type SupabaseRuntimeEnv = {
   SUPABASE_SERVICE_ROLE_KEY?: string;
   SUPABASE_BOOTSTRAP_SUPER_ADMIN_EMAIL?: string;
   RESEND_API_KEY?: string;
+  WATERMARK_SERVICE_URL?: string;
+  WATERMARK_SERVICE_SECRET?: string;
 };
 
 export type SupabaseClients = {

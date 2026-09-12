@@ -7,6 +7,7 @@ import {
   type SakenoProfile,
   type SupabaseRuntimeEnv,
 } from "../supabase";
+import { setWatermarkServiceConfig } from "../watermark-service/client";
 
 export type TrpcContext = {
   req: unknown;
@@ -24,6 +25,11 @@ type FetchCreateContextFnOptions = {
 
 async function contextFromAccessToken(accessToken: string | null, env: SupabaseRuntimeEnv): Promise<Pick<TrpcContext, "user" | "accessToken" | "supabase">> {
   const clients = setSupabaseRuntime(createSupabaseClients(env));
+  setWatermarkServiceConfig(
+    env.WATERMARK_SERVICE_URL && env.WATERMARK_SERVICE_SECRET
+      ? { url: env.WATERMARK_SERVICE_URL, secret: env.WATERMARK_SERVICE_SECRET }
+      : undefined,
+  );
   const user = accessToken ? await resolveAuthenticatedProfile(accessToken, clients, env) : null;
   return { user, accessToken, supabase: accessToken ? supabaseForAccessToken(accessToken, clients) : null };
 }

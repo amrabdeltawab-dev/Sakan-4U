@@ -10,6 +10,7 @@ VITE_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4rresvAQDuO7b5eyvt56NQ_hdGD16Ei"
 # Secrets — set via: wrangler secret put <NAME>
 #   SUPABASE_SERVICE_ROLE_KEY  — Supabase service role key (bypasses RLS, server-only)
 #   RESEND_API_KEY             — Resend email API key
+#   WATERMARK_SERVICE_SECRET   — Shared secret for the standalone Node watermark service
 
 [assets]
 directory = "dist/public"

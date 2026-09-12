@@ -1,17 +1,6 @@
 import { supabaseAdmin, supabasePublic, type AppRole } from "./supabase";
-type WatermarkModule = typeof import("./watermark");
-let watermarkModulePromise: Promise<WatermarkModule> | undefined;
-
-// Sharp is required only by the Node moderation path. Keep it out of the eagerly
-// evaluated Cloudflare Worker graph; normal property/auth/public procedures do not
-// need image processing.
-async function getWatermarkModule(): Promise<WatermarkModule> {
-  const watermarkFile = import.meta.url.endsWith(".ts") ? "./watermark.ts" : "./watermark.js";
-  const moduleUrl = new URL(watermarkFile, import.meta.url).href;
-  const importModule = (specifier: string) => import(specifier);
-  watermarkModulePromise ??= importModule(moduleUrl) as Promise<WatermarkModule>;
-  return watermarkModulePromise;
-}
+import { assertProcessablePropertyImage } from "./watermark";
+import { createWatermarkDerivativeViaService } from "./watermark-service/client";
 
 // Compatibility exports retained only while unused legacy integration shims remain in the source tree.
 // The active Express context no longer calls these functions.
@@ -205,7 +194,7 @@ async function validatePropertySubmissionPhotos(photos: PropertyPhotoInput[]) {
     const bytes = Buffer.from(photo.dataBase64, "base64");
     if (!bytes.length || bytes.length > MAX_PROPERTY_PHOTO_BYTES) throw new Error("يجب أن تكون كل صورة صالحة وبحجم لا يتجاوز 5 ميجابايت.");
     if (!hasAllowedImageSignature(bytes, photo.mimeType)) throw new Error("تدعم Sakan 4U صور JPEG وPNG وWebP الحقيقية فقط.");
-    try { await (await getWatermarkModule()).assertProcessablePropertyImage(bytes); } catch { throw new Error("تعذر قراءة إحدى الصور المختارة. اختر ملف صورة حقيقياً غير تالف ثم أعد المحاولة."); }
+    try { assertProcessablePropertyImage(bytes); } catch { throw new Error("تعذر قراءة إحدى الصور المختارة. اختر ملف صورة حقيقياً غير تالف ثم أعد المحاولة."); }
     return { ...photo, ...normalizeMediaMetadata(photo), bytes };
   }));
 }
@@ -261,7 +250,7 @@ async function publishApprovedPropertyImages(propertyId: string) {
         const { data: sourceFile, error: sourceError } = await supabaseAdmin.storage.from(item.storage_bucket).download(item.storage_path);
         fail(sourceError);
         if (!sourceFile) throw new Error("تعذر قراءة المصدر الخاص للصورة.");
-        const derivative = await (await getWatermarkModule()).createSakenoWatermarkedDerivative(Buffer.from(await sourceFile.arrayBuffer()));
+        const derivative = await createWatermarkDerivativeViaService(new Uint8Array(await sourceFile.arrayBuffer()));
         const derivativePath = `watermarked/${propertyId}/${item.id}.webp`;
         const { error: uploadError } = await supabaseAdmin.storage.from("property-images").upload(derivativePath, derivative, { contentType: "image/webp", upsert: true });
         fail(uploadError);
