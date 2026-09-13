@@ -47,6 +47,7 @@
     "@supabase/supabase-js": "^2.112.3",
     "@tailwindcss/vite": "^4.1.3",
     "@tanstack/react-query": "^5.90.2",
+    "@testing-library/dom": "^10.4.1",
     "@trpc/client": "^11.6.0",
     "@trpc/react-query": "^11.6.0",
     "@trpc/server": "^11.6.0",
