@@ -15,6 +15,8 @@ const localSupabaseEnv: SupabaseRuntimeEnv = {
   SUPABASE_SERVICE_ROLE_KEY: getRuntimeEnvValue("SUPABASE_SERVICE_ROLE_KEY"),
   SUPABASE_BOOTSTRAP_SUPER_ADMIN_EMAIL: getRuntimeEnvValue("SUPABASE_BOOTSTRAP_SUPER_ADMIN_EMAIL"),
   RESEND_API_KEY: getRuntimeEnvValue("RESEND_API_KEY"),
+  WATERMARK_SERVICE_URL: getRuntimeEnvValue("WATERMARK_SERVICE_URL"),
+  WATERMARK_SERVICE_SECRET: getRuntimeEnvValue("WATERMARK_SERVICE_SECRET"),
 };
 
 async function startServer() {

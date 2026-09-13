@@ -1,4 +1,5 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
+import { fileURLToPath } from "node:url";
 import { createSakenoWatermarkedDerivative } from "../watermark";
 
 const MAX_BODY_BYTES = 5 * 1024 * 1024;
@@ -106,7 +107,8 @@ export function startWatermarkServer(secret: string, port: number = DEFAULT_PORT
   return server;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+const isMainModule = import.meta.url === `file://${process.argv[1]}` || fileURLToPath(import.meta.url) === process.argv[1];
+if (isMainModule) {
   const secret = process.env.WATERMARK_SERVICE_SECRET;
   if (!secret) {
     console.error("WATERMARK_SERVICE_SECRET environment variable is required");

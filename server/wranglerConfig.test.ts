@@ -14,5 +14,6 @@ describe("Cloudflare Wrangler configuration", () => {
   it("does not commit secrets as plaintext vars", () => {
     expect(config).not.toMatch(/RESEND_API_KEY\s*=\s*["']re_/);
     expect(config).not.toMatch(/SUPABASE_SERVICE_ROLE_KEY\s*=\s*["']/);
+    expect(config).not.toMatch(/WATERMARK_SERVICE_SECRET\s*=\s*["']/);
   });
 });
