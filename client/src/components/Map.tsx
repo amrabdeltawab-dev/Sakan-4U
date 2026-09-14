@@ -1,140 +1,23 @@
-/**
- * GOOGLE MAPS FRONTEND INTEGRATION - ESSENTIAL GUIDE
- *
- * USAGE FROM PARENT COMPONENT:
- * ======
- *
- * const mapRef = useRef<google.maps.Map | null>(null);
- *
- * <MapView
- *   initialCenter={{ lat: 40.7128, lng: -74.0060 }}
- *   initialZoom={15}
- *   onMapReady={(map) => {
- *     mapRef.current = map; // Store to control map from parent anytime, google map itself is in charge of the re-rendering, not react state.
- * </MapView>
- *
- * ======
- * Available Libraries and Core Features:
- * -------------------------------
- * 📍 MARKER (from `marker` library)
- * - Attaches to map using { map, position }
- * new google.maps.marker.AdvancedMarkerElement({
- *   map,
- *   position: { lat: 37.7749, lng: -122.4194 },
- *   title: "San Francisco",
- * });
- *
- * -------------------------------
- * 🏢 PLACES (from `places` library)
- * - Does not attach directly to map; use data with your map manually.
- * const place = new google.maps.places.Place({ id: PLACE_ID });
- * await place.fetchFields({ fields: ["displayName", "location"] });
- * map.setCenter(place.location);
- * new google.maps.marker.AdvancedMarkerElement({ map, position: place.location });
- *
- * -------------------------------
- * 🧭 GEOCODER (from `geocoding` library)
- * - Standalone service; manually apply results to map.
- * const geocoder = new google.maps.Geocoder();
- * geocoder.geocode({ address: "New York" }, (results, status) => {
- *   if (status === "OK" && results[0]) {
- *     map.setCenter(results[0].geometry.location);
- *     new google.maps.marker.AdvancedMarkerElement({
- *       map,
- *       position: results[0].geometry.location,
- *     });
- *   }
- * });
- *
- * -------------------------------
- * 📐 GEOMETRY (from `geometry` library)
- * - Pure utility functions; not attached to map.
- * const dist = google.maps.geometry.spherical.computeDistanceBetween(p1, p2);
- *
- * -------------------------------
- * 🛣️ ROUTES (from `routes` library)
- * - Combines DirectionsService (standalone) + DirectionsRenderer (map-attached)
- * const directionsService = new google.maps.DirectionsService();
- * const directionsRenderer = new google.maps.DirectionsRenderer({ map });
- * directionsService.route(
- *   { origin, destination, travelMode: "DRIVING" },
- *   (res, status) => status === "OK" && directionsRenderer.setDirections(res)
- * );
- *
- * -------------------------------
- * 🌦️ MAP LAYERS (attach directly to map)
- * - new google.maps.TrafficLayer().setMap(map);
- * - new google.maps.TransitLayer().setMap(map);
- * - new google.maps.BicyclingLayer().setMap(map);
- *
- * -------------------------------
- * ✅ SUMMARY
- * - “map-attached” → AdvancedMarkerElement, DirectionsRenderer, Layers.
- * - “standalone” → Geocoder, DirectionsService, DistanceMatrixService, ElevationService.
- * - “data-only” → Place, Geometry utilities.
- */
-
-/// <reference types="@types/google.maps" />
-
 import { useEffect, useRef, useState } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { publicMapFallbackCopy } from "@/lib/publicLocation";
 import { cn } from "@/lib/utils";
 
-declare global {
-  interface Window {
-    google?: typeof google;
-  }
-}
-
-const API_KEY = import.meta.env.VITE_FRONTEND_FORGE_API_KEY;
-const FORGE_BASE_URL =
-  import.meta.env.VITE_FRONTEND_FORGE_API_URL ||
-  "https://forge.butterfly-effect.dev";
-const MAPS_PROXY_URL = `${FORGE_BASE_URL}/v1/maps/proxy`;
-const MAP_SCRIPT_ID = "sakeno-google-maps-proxy";
-const MAP_LOAD_TIMEOUT_MS = 15_000;
-let mapScriptPromise: Promise<void> | null = null;
-
-function loadMapScript() {
-  if (window.google?.maps) return Promise.resolve();
-  if (mapScriptPromise) return mapScriptPromise;
-  if (!API_KEY) return Promise.reject(new Error("browser_map_proxy_configuration_missing"));
-
-  mapScriptPromise = new Promise<void>((resolve, reject) => {
-    document.getElementById(MAP_SCRIPT_ID)?.remove();
-    const script = document.createElement("script");
-    script.id = MAP_SCRIPT_ID;
-    script.src = `${MAPS_PROXY_URL}/maps/api/js?key=${API_KEY}&v=weekly&libraries=geocoding,geometry`;
-    script.async = true;
-    script.crossOrigin = "anonymous";
-    const timeout = window.setTimeout(() => {
-      script.remove();
-      reject(new Error("browser_map_proxy_timeout"));
-    }, MAP_LOAD_TIMEOUT_MS);
-    script.onload = () => {
-      window.clearTimeout(timeout);
-      if (window.google?.maps) resolve();
-      else reject(new Error("browser_map_proxy_loaded_without_google_maps"));
-    };
-    script.onerror = () => {
-      window.clearTimeout(timeout);
-      script.remove();
-      reject(new Error("browser_map_proxy_request_failed"));
-    };
-    document.head.appendChild(script);
-  }).catch(error => {
-    mapScriptPromise = null;
-    throw error;
-  });
-
-  return mapScriptPromise;
+export interface MapHandle {
+  leafletMap: L.Map;
+  setView: (center: { lat: number; lng: number }, zoom?: number) => void;
+  addCircle: (center: { lat: number; lng: number }, radiusMeters: number) => L.Circle;
+  addMarker: (latlng: { lat: number; lng: number }, title?: string) => L.Marker;
+  onMapClick: (handler: (latlng: { lat: number; lng: number }) => void) => void;
+  fitBoundsAround: (center: { lat: number; lng: number }, radiusMeters: number, padding?: number) => void;
 }
 
 interface MapViewProps {
   className?: string;
-  initialCenter?: google.maps.LatLngLiteral;
+  initialCenter?: { lat: number; lng: number };
   initialZoom?: number;
-  onMapReady?: (map: google.maps.Map) => void;
+  onMapReady?: (handle: MapHandle) => void;
 }
 
 export function MapView({
@@ -144,7 +27,7 @@ export function MapView({
   onMapReady,
 }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<google.maps.Map | null>(null);
+  const mapRef = useRef<L.Map | null>(null);
   const onMapReadyRef = useRef(onMapReady);
   const [mapState, setMapState] = useState<"loading" | "ready" | "unavailable">("loading");
   const [retryToken, setRetryToken] = useState(0);
@@ -156,33 +39,90 @@ export function MapView({
   useEffect(() => {
     let active = true;
     setMapState("loading");
-    void (async () => {
-      try {
-        await loadMapScript();
-        if (!active || !mapContainer.current || !window.google?.maps) return;
-        map.current = new window.google.maps.Map(mapContainer.current, {
-          zoom: initialZoom,
-          center: initialCenter,
-          mapTypeControl: true,
-          fullscreenControl: true,
-          zoomControl: true,
-          streetViewControl: false,
-          gestureHandling: "cooperative",
-        });
-        onMapReadyRef.current?.(map.current);
-        if (active) setMapState("ready");
-      } catch {
-        if (active) setMapState("unavailable");
+
+    if (!mapContainer.current) return;
+
+    try {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
       }
-    })();
+
+      const map = L.map(mapContainer.current, {
+        center: L.latLng(initialCenter.lat, initialCenter.lng),
+        zoom: initialZoom,
+        zoomControl: true,
+        attributionControl: true,
+      });
+
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+      }).addTo(map);
+
+      mapRef.current = map;
+
+      const handle: MapHandle = {
+        leafletMap: map,
+        setView: (center, zoom) => map.setView(L.latLng(center.lat, center.lng), zoom ?? map.getZoom()),
+        addCircle: (center, radiusMeters) =>
+          L.circle(L.latLng(center.lat, center.lng), {
+            radius: radiusMeters,
+            fillColor: "#2563eb",
+            fillOpacity: 0.16,
+            color: "#2563eb",
+            opacity: 0.72,
+            weight: 2,
+            interactive: false,
+          }).addTo(map),
+        addMarker: (latlng, title) =>
+          L.marker(L.latLng(latlng.lat, latlng.lng), { title: title ?? "" }).addTo(map),
+        onMapClick: handler => {
+          map.on("click", (event: L.LeafletMouseEvent) => {
+            handler({ lat: event.latlng.lat, lng: event.latlng.lng });
+          });
+        },
+        fitBoundsAround: (center, radiusMeters, padding) => {
+          const latLng = L.latLng(center.lat, center.lng);
+          const southWest = L.latLng(latLng.lat - 0.003, latLng.lng - 0.003);
+          const northEast = L.latLng(latLng.lat + 0.003, latLng.lng + 0.003);
+          const bounds = L.latLngBounds(southWest, northEast);
+          map.fitBounds(bounds, { padding: [padding ?? 42, padding ?? 42] });
+        },
+      };
+
+      if (active) {
+        setMapState("ready");
+        onMapReadyRef.current?.(handle);
+      }
+    } catch {
+      if (active) setMapState("unavailable");
+    }
+
     return () => {
       active = false;
-      map.current = null;
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
     };
   }, [initialCenter.lat, initialCenter.lng, initialZoom, retryToken]);
 
-  return <div className={cn("relative overflow-hidden bg-[#e9eff3]", className)}>
-    <div ref={mapContainer} className="h-full w-full" />
-    {mapState !== "ready" && <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_20%_20%,#ffffff_0,transparent_28%),linear-gradient(135deg,#f1f5f9,#dce8ed)] p-6 text-center"><div className="max-w-xs rounded-2xl border border-white/80 bg-white/90 p-4 shadow-sm"><span className="mx-auto mb-2 grid h-8 w-8 place-items-center rounded-full bg-[#eff6ff] text-xs font-black text-[#2563eb]">⌖</span><b className="block text-sm text-[#0f172a]">{mapState === "loading" ? publicMapFallbackCopy.loadingTitle : publicMapFallbackCopy.unavailableTitle}</b><small className="mt-1 block leading-5 text-[#475569]">{mapState === "loading" ? "لا تظهر أي إحداثيات دقيقة أثناء تجهيز الخريطة." : publicMapFallbackCopy.unavailableDescription}</small>{mapState === "unavailable" && <button type="button" onClick={() => setRetryToken(value => value + 1)} className="mt-3 rounded-lg border border-[#d7e1e9] bg-white px-3 py-1.5 text-xs font-extrabold text-[#0f172a] hover:bg-[#f8fafc]">إعادة المحاولة</button>}</div></div>}
-  </div>;
+  return (
+    <div className={cn("relative overflow-hidden bg-[#e9eff3]", className)}>
+      <div ref={mapContainer} dir="ltr" className="h-full w-full" />
+      {mapState !== "ready" && (
+        <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_20%_20%,#ffffff_0,transparent_28%),linear-gradient(135deg,#f1f5f9,#dce8ed)] p-6 text-center">
+          <div className="max-w-xs rounded-2xl border border-white/80 bg-white/90 p-4 shadow-sm">
+            <span className="mx-auto mb-2 grid h-8 w-8 place-items-center rounded-full bg-[#eff6ff] text-xs font-black text-[#2563eb]">⌖</span>
+            <b className="block text-sm text-[#0f172a]">{mapState === "loading" ? publicMapFallbackCopy.loadingTitle : publicMapFallbackCopy.unavailableTitle}</b>
+            <small className="mt-1 block leading-5 text-[#475569]">{mapState === "loading" ? "لا تظهر أي إحداثيات دقيقة أثناء تجهيز الخريطة." : publicMapFallbackCopy.unavailableDescription}</small>
+            {mapState === "unavailable" && (
+              <button type="button" onClick={() => setRetryToken(value => value + 1)} className="mt-3 rounded-lg border border-[#d7e1e9] bg-white px-3 py-1.5 text-xs font-extrabold text-[#0f172a] hover:bg-[#f8fafc]">إعادة المحاولة</button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

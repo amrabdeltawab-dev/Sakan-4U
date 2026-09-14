@@ -3,10 +3,13 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 describe("browser map configuration", () => {
-  it("uses the browser-safe Maps proxy configuration and never references private credentials", () => {
+  it("uses Leaflet with OpenStreetMap tiles and never references the Forge proxy or private credentials", () => {
     const source = readFileSync(resolve(process.cwd(), "client/src/components/Map.tsx"), "utf8");
-    expect(source).toContain("VITE_FRONTEND_FORGE_API_KEY");
-    expect(source).toContain("VITE_FRONTEND_FORGE_API_URL");
+    expect(source).toContain("leaflet");
+    expect(source).toContain("tile.openstreetmap.org");
+    expect(source).not.toContain("VITE_FRONTEND_FORGE_API_KEY");
+    expect(source).not.toContain("VITE_FRONTEND_FORGE_API_URL");
+    expect(source).not.toContain("forge.butterfly-effect.dev");
     expect(source).not.toContain("SUPABASE_SERVICE_ROLE_KEY");
     expect(source).not.toContain("BUILT_IN_FORGE_API_KEY");
   });
