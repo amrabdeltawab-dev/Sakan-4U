@@ -69,13 +69,38 @@ describe("property submission with required photos", () => {
     expect(routerSource).toContain("review: adminProcedure");
   });
 
+  it("exposes an admin-only publishMedia procedure that accepts pre-generated WebP bytes from the browser", async () => {
+    const routerSource = await import("node:fs/promises").then(fs => fs.readFile("server/routers.ts", "utf8"));
+    const dbSource = await import("node:fs/promises").then(fs => fs.readFile("server/db.ts", "utf8"));
+    expect(routerSource).toContain("publishMedia: adminProcedure");
+    expect(routerSource).toContain("webpBase64");
+    expect(dbSource).toContain("publishApprovedMediaFromBytes");
+    expect(dbSource).toContain("isWebpSignature");
+    expect(dbSource).toContain("MAX_PROPERTY_PHOTO_BYTES");
+  });
+
+  it("removes the server-side Sharp watermark generation from the approval path", async () => {
+    const dbSource = await import("node:fs/promises").then(fs => fs.readFile("server/db.ts", "utf8"));
+    expect(dbSource).not.toContain("publishApprovedPropertyImages");
+    expect(dbSource).not.toContain("createWatermarkDerivativeViaService");
+    expect(dbSource).toContain("يجب إنشاء النسخ الموسومة لجميع صور العقار قبل الاعتماد.");
+  });
+
+  it("uses a shared watermark design module importable by both server and client", async () => {
+    const sharedSource = await import("node:fs/promises").then(fs => fs.readFile("shared/watermark.ts", "utf8"));
+    const serverSource = await import("node:fs/promises").then(fs => fs.readFile("server/watermark.ts", "utf8"));
+    expect(sharedSource).toContain("buildWatermarkSvg");
+    expect(sharedSource).toContain("Sakan 4U");
+    expect(serverSource).toContain("buildWatermarkSvg");
+  });
+
   it("keeps the four-stage owner payload aligned with the trimmed server contract", async () => {
     const ownerSource = await import("node:fs/promises").then(fs => fs.readFile("client/src/components/OwnerPropertyCreateWizard.tsx", "utf8"));
     const routerSource = await import("node:fs/promises").then(fs => fs.readFile("server/routers.ts", "utf8"));
     expect(ownerSource).toContain("const normalizedDescription = form.description.trim()");
     expect(ownerSource).toContain("description: normalizedDescription");
     expect(ownerSource).toContain("exactLat");
-    expect(ownerSource).toContain("new google.maps.Marker");
+    expect(ownerSource).toContain("MapView");
     expect(ownerSource).toContain('bathrooms: "1"');
     expect(ownerSource).toContain("const validBathrooms");
     expect(ownerSource).toContain('min="1" aria-invalid={!validBathrooms}');

@@ -1,4 +1,7 @@
-import { buildWatermarkSvg, getWatermarkConfig } from "@shared/watermark";
+// Canvas watermarking runs in the admin browser at approval time.
+// jsdom does not implement canvas.toBlob or createImageBitmap, so these
+// functions cannot be unit-tested in the vitest/jsdom environment.
+import { buildWatermarkSvg } from "@shared/watermark";
 
 const WEBP_QUALITY = 0.86;
 
@@ -16,7 +19,7 @@ function uint8ArrayToBase64(bytes: Uint8Array): string {
 }
 
 async function loadImageFromBytes(bytes: Uint8Array): Promise<ImageBitmap> {
-  const blob = new Blob([bytes], { type: "application/octet-stream" });
+  const blob = new Blob([bytes.buffer as ArrayBuffer], { type: "application/octet-stream" });
   return createImageBitmap(blob, { imageOrientation: "from-image" });
 }
 
