@@ -1,6 +1,5 @@
 import { supabaseAdmin, supabasePublic, type AppRole } from "./supabase";
 import { assertProcessablePropertyImage } from "./watermark";
-import { createWatermarkDerivativeViaService } from "./watermark-service/client";
 
 // Compatibility exports retained only while unused legacy integration shims remain in the source tree.
 // The active Express context no longer calls these functions.
@@ -233,45 +232,46 @@ async function makeLegacySourcePrivate(item: WatermarkableMedia) {
   return { ...item, storage_bucket: "property-media-staging" as const, storage_path: privatePath, public_storage_bucket: null, public_storage_path: null };
 }
 
-async function publishApprovedPropertyImages(propertyId: string) {
+function isWebpSignature(bytes: Uint8Array): boolean {
+  return bytes.length >= 12
+    && bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46
+    && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50;
+}
+
+export async function publishApprovedMediaFromBytes(propertyId: string, mediaBytes: Array<{ mediaId: string; webpBase64: string }>) {
   const { data, error } = await supabaseAdmin
     .from("property_media")
-    .select("id, property_id, storage_bucket, storage_path, original_name, mime_type, public_storage_bucket, public_storage_path, watermark_status")
+    .select("id, storage_bucket, storage_path, watermark_status, public_storage_path")
     .eq("property_id", propertyId).eq("media_type", "image").order("sort_order", { ascending: true });
   fail(error);
+  const dbItems = (data ?? []) as WatermarkableMedia[];
+  const bytesByMediaId = new Map(mediaBytes.map(item => [item.mediaId, item.webpBase64]));
   const published: string[] = [];
   try {
-    for (const rawItem of (data ?? []) as WatermarkableMedia[]) {
+    for (const rawItem of dbItems) {
       if (rawItem.watermark_status === "watermarked" && rawItem.public_storage_path) continue;
+      const base64 = bytesByMediaId.get(rawItem.id);
+      if (!base64) throw new Error(`النسخة الموسومة للصورة ${rawItem.id} غير متوفرة.`);
+      const bytes = new Uint8Array(Buffer.from(base64, "base64"));
+      if (!isWebpSignature(bytes)) throw new Error(`الملف المرسل للصورة ${rawItem.id} ليس بصيغة WebP صالحة.`);
+      if (bytes.byteLength > MAX_PROPERTY_PHOTO_BYTES) throw new Error(`حجم النسخة الموسومة للصورة ${rawItem.id} يتجاوز الحد المسموح.`);
       const item = await makeLegacySourcePrivate(rawItem);
-      const { error: processingError } = await supabaseAdmin.from("property_media").update({ watermark_status: "processing", watermark_error: null }).eq("id", item.id);
-      fail(processingError);
-      try {
-        const { data: sourceFile, error: sourceError } = await supabaseAdmin.storage.from(item.storage_bucket).download(item.storage_path);
-        fail(sourceError);
-        if (!sourceFile) throw new Error("تعذر قراءة المصدر الخاص للصورة.");
-        const derivative = await createWatermarkDerivativeViaService(new Uint8Array(await sourceFile.arrayBuffer()));
-        const derivativePath = `watermarked/${propertyId}/${item.id}.webp`;
-        const { error: uploadError } = await supabaseAdmin.storage.from("property-images").upload(derivativePath, derivative, { contentType: "image/webp", upsert: true });
-        fail(uploadError);
-        const { error: updateError } = await supabaseAdmin.from("property_media").update({
-          storage_bucket: item.storage_bucket,
-          storage_path: item.storage_path,
-          public_storage_bucket: "property-images",
-          public_storage_path: derivativePath,
-          public_mime_type: "image/webp",
-          is_public: true,
-          watermark_status: "watermarked",
-          watermark_error: null,
-          watermark_processed_at: new Date().toISOString(),
-        }).eq("id", item.id);
-        fail(updateError);
-        published.push(derivativePath);
-      } catch (imageError) {
-        console.error("[Property watermark] Derivative processing failed", { propertyId, mediaId: item.id, reason: imageError instanceof Error ? imageError.message : "unknown_processing_failure" });
-        await supabaseAdmin.from("property_media").update({ watermark_status: "failed", watermark_error: imageError instanceof Error ? imageError.message.slice(0, 500) : "unknown_processing_failure", is_public: false }).eq("id", item.id);
-        throw new Error("تعذّر إنشاء النسخة العامة الموسومة. بقيت الصورة الأصلية محفوظة ولم يُنشر الإعلان.");
-      }
+      const derivativePath = `watermarked/${propertyId}/${item.id}.webp`;
+      const { error: uploadError } = await supabaseAdmin.storage.from("property-images").upload(derivativePath, bytes, { contentType: "image/webp", upsert: true });
+      fail(uploadError);
+      const { error: updateError } = await supabaseAdmin.from("property_media").update({
+        storage_bucket: item.storage_bucket,
+        storage_path: item.storage_path,
+        public_storage_bucket: "property-images",
+        public_storage_path: derivativePath,
+        public_mime_type: "image/webp",
+        is_public: true,
+        watermark_status: "watermarked",
+        watermark_error: null,
+        watermark_processed_at: new Date().toISOString(),
+      }).eq("id", item.id);
+      fail(updateError);
+      published.push(derivativePath);
     }
   } catch (error) {
     if (published.length) await supabaseAdmin.storage.from("property-images").remove(published);
@@ -879,8 +879,10 @@ export async function reviewProperty(client: any, reviewerId: string, input: { p
     const { count, error: photoError } = await supabaseAdmin.from("property_media").select("id", { count: "exact", head: true }).eq("property_id", input.propertyId).eq("media_type", "image");
     fail(photoError);
     if ((count ?? 0) < MIN_PROPERTY_PHOTO_COUNT) throw new Error(`لا يمكن اعتماد الإعلان قبل رفع ${MIN_PROPERTY_PHOTO_COUNT} صور عقار على الأقل.`);
+    const { count: unpublishedCount, error: unpublishedError } = await supabaseAdmin.from("property_media").select("id", { count: "exact", head: true }).eq("property_id", input.propertyId).eq("media_type", "image").neq("watermark_status", "watermarked");
+    fail(unpublishedError);
+    if ((unpublishedCount ?? 0) > 0) throw new Error("يجب إنشاء النسخ الموسومة لجميع صور العقار قبل الاعتماد.");
   }
-  if (input.status === "verified") await publishApprovedPropertyImages(input.propertyId);
   const { data, error } = await client.from("properties").update({ verification_status: input.status, review_reason: input.reason ?? null, owner_identity_verified: input.ownerIdentityVerified ?? false, property_video_verified: input.propertyVideoVerified ?? false, location_verified: input.locationVerified ?? false, availability_verified: input.availabilityVerified ?? false, reviewed_by: reviewerId, reviewed_at: new Date().toISOString() }).eq("id", input.propertyId).select("id, verification_status").single();
   fail(error);
   const { error: eventError } = await client.from("property_review_events").insert({ property_id: input.propertyId, reviewer_id: reviewerId, status: input.status, note: input.reason ?? null });
