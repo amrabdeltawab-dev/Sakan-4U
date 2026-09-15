@@ -11,7 +11,7 @@ export interface WatermarkConfig {
 
 export function getWatermarkConfig(dimensions: WatermarkDimensions): WatermarkConfig {
   const smallerEdge = Math.max(Math.min(dimensions.width, dimensions.height), 1);
-  const fontSize = Math.max(1, Math.round(smallerEdge * 0.038));
+  const fontSize = Math.max(1, Math.round(smallerEdge * 0.055));
   const badgeSize = Math.max(2, Math.round(fontSize * 1.55));
   const padding = Math.round(fontSize * 0.7);
   return { fontSize, badgeSize, padding };

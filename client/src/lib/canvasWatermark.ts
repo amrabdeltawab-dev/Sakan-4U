@@ -27,13 +27,11 @@ function svgToDataUrl(svg: string): string {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
-async function loadSvgImage(svg: string, width: number, height: number): Promise<HTMLImageElement> {
+async function loadSvgImage(svg: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
     img.onerror = () => reject(new Error("تعذر تحميل طبقة العلامة المائية."));
-    img.width = width;
-    img.height = height;
     img.src = svgToDataUrl(svg);
   });
 }
@@ -58,8 +56,8 @@ export async function generateWatermarkedWebp(sourceBytes: Uint8Array): Promise<
   ctx.drawImage(bitmap, 0, 0);
 
   const svg = buildWatermarkSvg({ width: bitmap.width, height: bitmap.height });
-  const overlay = await loadSvgImage(svg, bitmap.width, bitmap.height);
-  ctx.drawImage(overlay, 0, 0);
+  const overlay = await loadSvgImage(svg);
+  ctx.drawImage(overlay, 0, 0, bitmap.width, bitmap.height);
 
   const blob = await canvasToWebpBlob(canvas);
   const arrayBuffer = await blob.arrayBuffer();
