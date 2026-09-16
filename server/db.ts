@@ -845,7 +845,7 @@ export async function listReviewQueue(client: any) {
   fail(visibleError);
   const ids = (visibleProperties ?? []).map((property: any) => property.id);
   if (!ids.length) return [];
-  const { data, error } = await supabaseAdmin.from("properties").select("*, media:property_media(*)").in("id", ids).order("updated_at", { ascending: false });
+  const { data, error } = await supabaseAdmin.from("properties").select("*, media:property_media(*), owner:profiles!properties_owner_id_fkey(id, full_name, phone)").in("id", ids).order("updated_at", { ascending: false });
   fail(error);
   const completeSubmissions = (data ?? []).filter(property => (property.media ?? []).filter((media: any) => media.media_type === "image").length >= MIN_PROPERTY_PHOTO_COUNT);
   return camelize(await withManagedMediaUrls(completeSubmissions));
@@ -1131,4 +1131,49 @@ export async function replaceOwnerPropertyMedia(client: any, ownerId: string, in
   });
   await deleteOwnerMedia(client, ownerId, current.id);
   return { replacedMediaId: current.id, replacement };
+}
+
+export type OwnerLeadInput = {
+  name: string;
+  phone: string;
+  area: string;
+  approximatePropertyCount?: number;
+  notes?: string;
+  consentAccepted: boolean;
+};
+
+export async function submitOwnerLead(input: OwnerLeadInput) {
+  if (!input.consentAccepted) throw new Error("يجب الموافقة على شروط التواصل قبل إرسال الطلب.");
+  const { data, error } = await supabaseAdmin.from("owner_leads").insert({
+    name: input.name.trim(),
+    phone: input.phone.trim(),
+    area: input.area.trim(),
+    approximate_property_count: input.approximatePropertyCount ?? null,
+    notes: input.notes?.trim() || null,
+    status: "new",
+    source: "landing_page",
+    consent_accepted: true,
+  }).select("id").single();
+  fail(error);
+  const leadId = data?.id;
+  if (!leadId) throw new Error("تعذر إنشاء طلب المالك.");
+  const { error: notifError } = await supabaseAdmin.from("notifications").insert({
+    notification_type: "owner_lead",
+    title: "طلب مالك جديد",
+    message: `${input.name.trim()} · ${input.phone.trim()} · ${input.area.trim()}`,
+  });
+  fail(notifError);
+  return { leadId };
+}
+
+export async function listOwnerLeads() {
+  const { data, error } = await supabaseAdmin.from("owner_leads").select("id, name, phone, area, approximate_property_count, notes, status, source, created_at, updated_at").order("created_at", { ascending: false }).limit(100);
+  fail(error);
+  return camelize(data ?? []);
+}
+
+export async function updateOwnerLeadStatus(leadId: string, status: "new" | "contacted" | "closed") {
+  const { data, error } = await supabaseAdmin.from("owner_leads").update({ status, updated_at: new Date().toISOString() }).eq("id", leadId).select("id, status").single();
+  fail(error);
+  return camelize(data);
 }

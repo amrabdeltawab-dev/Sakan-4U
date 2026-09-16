@@ -134,6 +134,18 @@ export const appRouter = router({
     propertyDeletionEligibility: superAdminProcedure.input(z.object({ propertyId: z.string().uuid() })).query(({ ctx, input }) => db.getSuperAdminPropertyDeletionEligibility(ctx.supabase, input.propertyId)),
     deleteProperty: superAdminProcedure.input(z.object({ propertyId: z.string().uuid() })).mutation(({ ctx, input }) => db.deleteSuperAdminProperty(ctx.supabase, input.propertyId)),
   }),
+  leads: router({
+    submitOwnerLead: publicProcedure.input(z.object({
+      name: z.string().trim().min(2, "الاسم يجب أن يتكون من حرفين على الأقل.").max(160),
+      phone: z.string().trim().min(6, "رقم الهاتف يجب أن يتكون من 6 أحرف على الأقل.").max(32),
+      area: z.string().trim().min(2, "المنطقة مطلوبة.").max(120),
+      approximatePropertyCount: z.number().int().min(1).max(999).optional(),
+      notes: z.string().trim().max(1000).optional(),
+      consentAccepted: z.boolean().refine(value => value, "يجب الموافقة على شروط التواصل قبل إرسال الطلب."),
+    })).mutation(({ input }) => db.submitOwnerLead(input)),
+    listOwnerLeads: adminProcedure.query(() => db.listOwnerLeads()),
+    updateLeadStatus: adminProcedure.input(z.object({ leadId: z.string().uuid(), status: z.enum(["new", "contacted", "closed"]) })).mutation(({ input }) => db.updateOwnerLeadStatus(input.leadId, input.status)),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

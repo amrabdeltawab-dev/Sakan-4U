@@ -5,6 +5,7 @@ import Admin from "@/pages/Admin";
 import Auth from "@/pages/Auth";
 import Favorites from "@/pages/Favorites";
 import Home from "@/pages/Home";
+import AddPropertyLead from "@/pages/AddPropertyLead";
 import NotFound from "@/pages/NotFound";
 import Owner from "@/pages/Owner";
 import PropertyDetails from "@/pages/PropertyDetails";
@@ -22,6 +23,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 function Router() {
   return <Switch>
     <Route path="/" component={Home} />
+    <Route path="/add-property" component={AddPropertyLead} />
     <Route path="/property/:id" component={PropertyDetails} />
     <Route path="/login">{() => <Auth mode="login" />}</Route>
     <Route path="/signup/student">{() => <Auth mode="student" />}</Route>
