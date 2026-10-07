@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { adminProcedure, protectedProcedure, publicProcedure, router, superAdminProcedure } from "./_core/trpc";
 import * as db from "./db";
-import { sendBookingNotification, sendBookingNotificationToOwner, sendBookingNotificationToStudent, type BookingNotificationKind } from "./bookingNotifications";
+import { sendBookingNotification, sendBookingNotificationToOwner, sendBookingNotificationToStudent, sendBookingNotificationToStaff, type BookingNotificationKind } from "./bookingNotifications";
 import { sendPropertyReviewEmail, sendPropertySubmittedEmail, sendOwnerLeadEmail } from "./propertyNotifications";
 
 const propertyType = z.enum(["apartment", "studio", "room", "shared_room"]);
@@ -76,6 +76,7 @@ export const appRouter = router({
       const booking = await db.createBooking(ctx.supabase, ctx.user.id, input);
       if (booking && typeof booking === "object" && "id" in booking && typeof booking.id === "string") {
         await sendBookingNotificationToOwner("new_request", booking.id, ctx.env);
+        await sendBookingNotificationToStaff("new_request", booking.id, ctx.env);
       }
       return booking;
     }),

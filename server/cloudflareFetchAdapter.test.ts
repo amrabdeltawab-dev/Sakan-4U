@@ -42,6 +42,7 @@ describe("Cloudflare tRPC Fetch Adapter entrypoint", () => {
     const worker = readFileSync(resolve(process.cwd(), "worker/index.ts"), "utf8");
     const supabase = readFileSync(resolve(process.cwd(), "server/supabase.ts"), "utf8");
     expect(router).toContain('sendBookingNotificationToOwner("new_request"');
+    expect(router).toContain('sendBookingNotificationToStaff("new_request"');
     expect(router).toContain('sendBookingNotificationToStudent(kind');
     expect(router).toContain('sendBookingNotificationToStudent("completed"');
     expect(router).toContain('sendBookingNotificationToOwner("completed"');

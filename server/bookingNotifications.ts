@@ -1,6 +1,6 @@
 import * as db from "./db";
 import { escapeEmailHtml, sendEmail } from "./email";
-import type { SupabaseRuntimeEnv } from "./supabase";
+import { supabaseAdmin, type SupabaseRuntimeEnv } from "./supabase";
 import { getRuntimeEnvValue } from "./runtimeEnv";
 
 export type BookingNotificationKind =
@@ -132,4 +132,36 @@ export async function sendBookingNotificationToOwner(kind: BookingNotificationKi
 
 export async function sendBookingNotificationToStudent(kind: BookingNotificationKind, bookingId: string, env: Pick<SupabaseRuntimeEnv, "RESEND_API_KEY">) {
   return sendToRecipient(kind, bookingId, "student", env);
+}
+
+async function getStaffEmails(): Promise<string[]> {
+  const { data, error } = await supabaseAdmin
+    .from("profiles")
+    .select("email")
+    .in("role", ["admin", "super_admin"])
+    .not("email", "is", null);
+  if (error) throw error;
+  return (data ?? []).map((row: { email: string }) => row.email).filter(Boolean);
+}
+
+export async function sendBookingNotificationToStaff(kind: BookingNotificationKind, bookingId: string, env: Pick<SupabaseRuntimeEnv, "RESEND_API_KEY">): Promise<boolean> {
+  if (shouldSkipInTest()) return false;
+  try {
+    const details = await db.getBookingNotificationDetails(bookingId);
+    const emails = await getStaffEmails();
+    if (!emails.length) return false;
+    const subject = bookingSubject(kind, details.property.title);
+    const html = bookingHtml(kind, details, "staff");
+    for (const email of emails) {
+      try {
+        await sendEmail({ to: email, subject, html }, env);
+      } catch (err) {
+        console.error(`[Booking email] ${kind} to staff ${email} failed for ${bookingId}:`, err);
+      }
+    }
+    return true;
+  } catch (error) {
+    console.error(`[Booking email] ${kind} to staff failed for ${bookingId}:`, error);
+    return false;
+  }
 }

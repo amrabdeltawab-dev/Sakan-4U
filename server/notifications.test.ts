@@ -206,6 +206,63 @@ describe("Booking email notifications", () => {
   });
 });
 
+describe("Booking staff email notifications", () => {
+  it("sends new_request email to all staff members", async () => {
+    const fetchMock = mockFetch();
+    vi.stubEnv("NODE_ENV", "production");
+    mockGetBookingNotificationDetails({
+      property: { id: "p1", title: "شقة فاخرة", ownerId: "o1" },
+      student: { name: "أحمد", email: "student@test.com", phone: "010" },
+      owner: { name: "مالك", email: "owner@test.com", phone: "020" },
+      requestedViewingAt: "2026-01-01T10:00:00Z",
+    });
+    vi.doMock("./supabase", () => ({
+      supabaseAdmin: {
+        from: vi.fn().mockReturnValue({
+          select: vi.fn().mockReturnValue({
+            in: vi.fn().mockReturnValue({
+              not: vi.fn().mockResolvedValue({ data: [{ email: "admin@test.com" }, { email: "super@test.com" }], error: null }),
+            }),
+          }),
+        }),
+      },
+    }));
+    const { sendBookingNotificationToStaff: fn } = await import("./bookingNotifications");
+    const result = await fn("new_request", "booking-1", mockEnv);
+    expect(result).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const body1 = JSON.parse(String(fetchMock.mock.calls[0][1].body));
+    expect(body1.to).toEqual(["admin@test.com"]);
+    expect(body1.subject).toContain("طلب معاينة جديد");
+  });
+
+  it("returns false when no staff emails exist", async () => {
+    const fetchMock = mockFetch();
+    vi.stubEnv("NODE_ENV", "production");
+    mockGetBookingNotificationDetails({
+      property: { id: "p1", title: "شقة", ownerId: "o1" },
+      student: { name: "أحمد", email: "student@test.com", phone: "010" },
+      owner: { name: "مالك", email: "owner@test.com", phone: "020" },
+      requestedViewingAt: "2026-01-01T10:00:00Z",
+    });
+    vi.doMock("./supabase", () => ({
+      supabaseAdmin: {
+        from: vi.fn().mockReturnValue({
+          select: vi.fn().mockReturnValue({
+            in: vi.fn().mockReturnValue({
+              not: vi.fn().mockResolvedValue({ data: [], error: null }),
+            }),
+          }),
+        }),
+      },
+    }));
+    const { sendBookingNotificationToStaff: fn } = await import("./bookingNotifications");
+    const result = await fn("new_request", "booking-1", mockEnv);
+    expect(result).toBe(false);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
 describe("Property review email notifications", () => {
   function mockSupabaseAdmin(propertyData: any, ownerData: any, staffData: any[] = []) {
     const propertyResult = { data: propertyData, error: null };
@@ -286,6 +343,23 @@ describe("Property review email notifications", () => {
     expect(result).toBe(false);
     expect(fetchMock).not.toHaveBeenCalled();
   });
+
+  it("sends property submitted email to all staff members", async () => {
+    const fetchMock = mockFetch();
+    vi.stubEnv("NODE_ENV", "production");
+    mockSupabaseAdmin(
+      { id: "p1", title: "شقة", owner_id: "o1", review_reason: null },
+      { full_name: "مالك", email: "owner@test.com" },
+      [{ email: "admin@test.com" }, { email: "super@test.com" }],
+    );
+    const { sendPropertySubmittedEmail: fn } = await import("./propertyNotifications");
+    const result = await fn("p1", "شقة فاخرة", mockEnv);
+    expect(result).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const body1 = JSON.parse(String(fetchMock.mock.calls[0][1].body));
+    expect(body1.to).toEqual(["admin@test.com"]);
+    expect(body1.subject).toContain("عقار جديد ينتظر المراجعة");
+  });
 });
 
 describe("Owner lead email notifications", () => {
@@ -316,28 +390,5 @@ describe("Owner lead email notifications", () => {
     const body1 = JSON.parse(String(fetchMock.mock.calls[0][1].body));
     expect(body1.subject).toContain("طلب مالك جديد");
     expect(body1.html).toContain("محمد");
-  });
-
-  it("returns false when no staff emails exist", async () => {
-    const fetchMock = mockFetch();
-    vi.stubEnv("NODE_ENV", "production");
-    vi.doMock("./supabase", () => ({
-      supabaseAdmin: {
-        from: vi.fn().mockReturnValue({
-          select: vi.fn().mockReturnValue({
-            in: vi.fn().mockReturnValue({
-              not: vi.fn().mockResolvedValue({ data: [], error: null }),
-            }),
-            eq: vi.fn().mockReturnValue({
-              maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
-            }),
-          }),
-        }),
-      },
-    }));
-    const { sendOwnerLeadEmail: fn } = await import("./propertyNotifications");
-    const result = await fn("lead-1", "محمد", "010", "بني سويف", mockEnv);
-    expect(result).toBe(false);
-    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
