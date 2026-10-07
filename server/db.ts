@@ -583,6 +583,57 @@ export async function deleteSuperAdminProperty(client: any, propertyId: string) 
   return camelize(data) as { propertyId: string; archived: boolean; deletedAt: string };
 }
 
+export async function adminHideProperty(client: any, propertyId: string) {
+  const { data: property, error: lookupError } = await client.from("properties").select("id, availability_status, deleted_at").eq("id", propertyId).is("deleted_at", null).maybeSingle();
+  fail(lookupError);
+  if (!property) throw new Error("العقار غير موجود أو تمت أرشفته مسبقاً.");
+  if (property.availability_status === "hidden") throw new Error("العقار مخفي بالفعل من النتائج العامة.");
+  const { data, error } = await client.from("properties").update({ availability_status: "hidden" }).eq("id", propertyId).select("id, availability_status").single();
+  fail(error);
+  return camelize(data);
+}
+
+export async function adminUnhideProperty(client: any, propertyId: string) {
+  const { data: property, error: lookupError } = await client.from("properties").select("id, availability_status, verification_status, deleted_at").eq("id", propertyId).is("deleted_at", null).maybeSingle();
+  fail(lookupError);
+  if (!property) throw new Error("العقار غير موجود أو تمت أرشفته.");
+  if (property.availability_status !== "hidden") throw new Error("العقار ليس مخفياً حالياً.");
+  const nextAvailability = property.verification_status === "verified" ? "available" : "hidden";
+  const { data, error } = await client.from("properties").update({ availability_status: nextAvailability }).eq("id", propertyId).select("id, availability_status").single();
+  fail(error);
+  return camelize(data);
+}
+
+export async function adminArchiveProperty(client: any, propertyId: string) {
+  const { data: property, error: lookupError } = await client.from("properties").select("id, deleted_at").eq("id", propertyId).is("deleted_at", null).maybeSingle();
+  fail(lookupError);
+  if (!property) throw new Error("العقار غير موجود أو تمت أرشفته مسبقاً.");
+  const { data, error } = await client.from("properties").update({ deleted_at: new Date().toISOString(), availability_status: "hidden" }).eq("id", propertyId).select("id").single();
+  fail(error);
+  await withdrawPublishedPropertyImages(propertyId);
+  return { propertyId, archived: true, deletedAt: new Date().toISOString() };
+}
+
+export async function adminPermanentlyDeleteProperty(client: any, propertyId: string) {
+  const { data: property, error: lookupError } = await client.from("properties").select("id, deleted_at").eq("id", propertyId).maybeSingle();
+  fail(lookupError);
+  if (!property) throw new Error("العقار غير موجود.");
+  await cleanupPropertyStorage(propertyId);
+  const { error: mediaDeleteError } = await supabaseAdmin.from("property_media").delete().eq("property_id", propertyId);
+  fail(mediaDeleteError);
+  const { error: deleteError } = await supabaseAdmin.from("properties").delete().eq("id", propertyId);
+  fail(deleteError);
+  return { propertyId, permanentlyDeleted: true };
+}
+
+export async function listAllPropertiesForAdmin(client: any, includeArchived: boolean) {
+  let query = client.from("properties").select("id, title, area, city, governorate, verification_status, availability_status, deleted_at, created_at, updated_at, owner:profiles!properties_owner_id_fkey(id, full_name, phone)", { count: "exact" }).order("updated_at", { ascending: false });
+  if (!includeArchived) query = query.is("deleted_at", null);
+  const { data, error } = await query;
+  fail(error);
+  return camelize(data ?? []);
+}
+
 export async function listPropertyLifecycleAudit(client: any, propertyId: string) {
   const { data, error } = await client.from("property_lifecycle_audit").select("id, action, from_verification_status, to_verification_status, from_availability_status, to_availability_status, media_id, details, created_at").eq("property_id", propertyId).order("created_at", { ascending: false }).limit(40);
   fail(error); return camelize(data ?? []);
