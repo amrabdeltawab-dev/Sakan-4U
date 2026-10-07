@@ -1,11 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800;900&family=Cairo:wght@400;700;800&family=Poppins:wght@600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "Alexandria", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Cairo", "Poppins", "Alexandria", ui-sans-serif, system-ui, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -54,7 +54,7 @@
 
 * { border-color: var(--border); }
 html { scroll-behavior: smooth; }
-body { margin: 0; min-width: 320px; background: #f8fafc; color: #0f172a; font-family: "Alexandria", ui-sans-serif, system-ui, sans-serif; }
+body { margin: 0; min-width: 320px; background: #f8fafc; color: #0f172a; font-family: "Cairo", "Poppins", "Alexandria", ui-sans-serif, system-ui, sans-serif; }
 button, input, textarea, select { font: inherit; }
 button { cursor: pointer; }
 button:active { transform: scale(.98); }
@@ -69,7 +69,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-
   .sakeno-primary-action:hover { background: #1d4ed8; box-shadow: 0 12px 24px rgb(37 99 235 / .24); }
   .sakeno-skeleton { position: relative; overflow: hidden; background: #e8eef7; }
   .sakeno-skeleton::after { position: absolute; inset: 0; transform: translateX(100%); background: linear-gradient(90deg, transparent, rgb(255 255 255 / .72), transparent); content: ""; animation: sakeno-shimmer 1.35s ease-in-out infinite; }
-  .sakan4u-toaster [data-sonner-toast] { direction: rtl; min-height: 3.5rem; max-width: min(30rem, calc(100vw - 2rem)); border: 1px solid #dbe6f0; border-radius: 1rem; padding: .85rem 1rem; background: #ffffff; color: #0f172a; box-shadow: 0 14px 34px rgb(15 23 42 / .14); font-family: "Alexandria", ui-sans-serif, system-ui, sans-serif; font-size: .82rem; font-weight: 700; line-height: 1.7; }
+  .sakan4u-toaster [data-sonner-toast] { direction: rtl; min-height: 3.5rem; max-width: min(30rem, calc(100vw - 2rem)); border: 1px solid #dbe6f0; border-radius: 1rem; padding: .85rem 1rem; background: #ffffff; color: #0f172a; box-shadow: 0 14px 34px rgb(15 23 42 / .14); font-family: "Cairo", "Poppins", "Alexandria", ui-sans-serif, system-ui, sans-serif; font-size: .82rem; font-weight: 700; line-height: 1.7; }
   .sakan4u-toaster [data-sonner-toast][data-type="success"] { border-color: #bbf7d0; background: #ecfdf5; color: #047857; }
   .sakan4u-toaster [data-sonner-toast][data-type="error"] { border-color: #fecdd3; background: #fff1f2; color: #b91c1c; }
   .sakan4u-toaster [data-sonner-toast] [data-close-button] { right: auto; left: .55rem; border-color: currentColor; opacity: .55; }

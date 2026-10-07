@@ -5,15 +5,12 @@ import { publicNavigationItems } from "@/lib/publicNavigation";
 import { Menu, UserRound, X } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
+import SakanLogo from "@/components/SakanLogo";
 
 export function Brand({ light = false }: { light?: boolean }) {
   return (
-    <Link href="/" className={`group inline-flex items-center gap-2.5 ${light ? "text-white" : "text-[#0f172a]"}`}>
-      <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#2563eb] text-base font-black text-white shadow-[0_8px_20px_rgba(37,99,235,.24)] transition-transform group-hover:rotate-[-5deg]">س</span>
-      <span className="leading-none">
-        <b className="block text-[17px] tracking-[.09em]">Sakan 4U</b>
-        <span className={`mt-1 block text-[10px] font-bold tracking-[.18em] ${light ? "text-white/55" : "text-[#475569]"}`}>Sakan 4U</span>
-      </span>
+    <Link href="/" className="group inline-flex items-center" aria-label="Sakan 4U — الصفحة الرئيسية">
+      <SakanLogo theme={light ? "dark" : "light"} height={44} className="max-w-[160px] object-contain sm:max-w-none" />
     </Link>
   );
 }
