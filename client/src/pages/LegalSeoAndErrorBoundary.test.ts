@@ -21,8 +21,8 @@ describe("Legal, metadata, and crash-fallback readiness", () => {
   });
 
   it("sets safe default and dynamic property Open Graph metadata without a Next.js dependency", () => {
-    expect(html).toContain("<title>Sakan 4U | سكن طلابي موثوق</title>");
-    expect(html).toContain('name="description" content="Sakan 4U — منصة سكن طلابي موثوق تساعد الطلاب على اكتشاف إعلانات موثقة وطلب معاينات آمنة في بني سويف."');
+    expect(html).toContain("<title>Sakan 4U | سكن طلابي موثّق في بني سويف</title>");
+    expect(html).toContain('name="description" content="Sakan 4U — منصة سكن طلابي موثّق في بني سويف."');
     expect(html).toContain('property="og:title"');
     expect(html).toContain('property="og:description"');
     expect(html).toContain('property="og:url" content="/"');

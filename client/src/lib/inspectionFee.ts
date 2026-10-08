@@ -1,5 +1,13 @@
 import { formatEgp } from "@/lib/marketplace";
 
+export const FEE_RATE = 0.15;
+export const FEE_CAP = 2000;
+
+export function computeServiceFee(monthlyRent: number): number {
+  if (monthlyRent <= 0) return 0;
+  return Math.min(Math.round(monthlyRent * FEE_RATE), FEE_CAP);
+}
+
 type InspectionFeeInput = {
   feeAmount?: number | null;
   isLoading: boolean;

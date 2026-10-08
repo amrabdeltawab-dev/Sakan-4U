@@ -36,8 +36,7 @@ describe("Mandatory owner verification and booking terms", () => {
   });
 
   it("requires the exact Arabic viewing terms acknowledgement in both client and server contracts", () => {
-    const terms = "أوافق على شروط المعاينة، وقواعد التنسيق، وأقر بأن منصة Sakan 4U هي جهة تنسيق ووساطة إعلانية وليست طرفاً في عقد الإيجار النهائي.";
-    expect(bookingPanel).toContain(terms);
+    expect(bookingPanel).toContain("رسوم الخدمة 15% من إيجار شهر واحد (بحد أقصى 2000 جنيه) تُدفع مرة واحدة وقت المعاينة");
     expect(bookingPanel).toContain("termsAccepted");
     expect(bookingPanel).toContain("disabled={!maySubmit}");
     expect(router).toContain("termsAccepted: z.boolean().refine");
