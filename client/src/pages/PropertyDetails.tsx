@@ -3,7 +3,7 @@ import { useRoute, Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookingRequestPanel } from "@/components/BookingRequestPanel";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import PropertyCard from "@/components/PropertyCard";
 import SiteHeader from "@/components/SiteHeader";
 import { MapView } from "@/components/Map";
@@ -14,7 +14,6 @@ import { getPropertyViewSessionId } from "@/lib/propertyViewTracking";
 import { ArrowLeft, ArrowRight, Archive, Bath, BedDouble, CheckCircle2, ChevronLeft, ChevronRight, CircleAlert, CookingPot, Expand, EyeOff, Heart, MapPin, PlayCircle, ReceiptText, Share2, ShieldCheck, Sparkles, Trash2, UsersRound, Wifi, X } from "lucide-react";
 import { actionErrorMessages } from "@/lib/errorMessages";
 import { showActionError, toast } from "@/lib/appToast";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const amenityIcons: Record<string, React.ReactNode> = { "واي فاي": <Wifi className="h-4 w-4" />, "مطبخ": <CookingPot className="h-4 w-4" /> };
 

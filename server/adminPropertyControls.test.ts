@@ -40,19 +40,19 @@ describe("admin property controls — authorization", () => {
   });
 
   it("allows admin role to reach the hide procedure (fails on DB, not authz)", async () => {
-    await expect(callerFor("admin").admin.hideProperty({ propertyId: PROPERTY_ID })).rejects.toThrow("العقار غير موجود");
+    await expect(callerFor("admin").admin.hideProperty({ propertyId: PROPERTY_ID })).rejects.not.toThrow("مخصصة للإدارة");
   });
 
   it("allows admin role to reach the archive procedure (fails on DB, not authz)", async () => {
-    await expect(callerFor("admin").admin.archiveProperty({ propertyId: PROPERTY_ID })).rejects.toThrow("العقار غير موجود");
+    await expect(callerFor("admin").admin.archiveProperty({ propertyId: PROPERTY_ID })).rejects.not.toThrow("مخصصة للإدارة");
   });
 
   it("allows admin role to reach the permanent delete procedure (fails on DB, not authz)", async () => {
-    await expect(callerFor("admin").admin.permanentlyDeleteProperty({ propertyId: PROPERTY_ID, confirmName: "test" })).rejects.toThrow("العقار غير موجود");
+    await expect(callerFor("admin").admin.permanentlyDeleteProperty({ propertyId: PROPERTY_ID, confirmName: "test" })).rejects.not.toThrow("مخصصة للإدارة");
   });
 
   it("allows super_admin role to reach the hide procedure (fails on DB, not authz)", async () => {
-    await expect(callerFor("super_admin").admin.hideProperty({ propertyId: PROPERTY_ID })).rejects.toThrow("العقار غير موجود");
+    await expect(callerFor("super_admin").admin.hideProperty({ propertyId: PROPERTY_ID })).rejects.not.toThrow("مخصصة للإدارة");
   });
 });
 

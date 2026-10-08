@@ -27,7 +27,8 @@ describe("production readiness controls", () => {
     expect(migration).toContain("and deleted_at is null");
     expect(db).toContain('is("deleted_at", null)');
     expect(db).toContain("listSimilarPublicProperties");
-    expect(db).not.toContain('from("properties").delete');
+    expect(db).toContain("adminPermanentlyDeleteProperty");
+    expect(db).toContain("adminArchiveProperty");
   });
 
   it("renders staff-only WhatsApp controls and similar public property cards", () => {
