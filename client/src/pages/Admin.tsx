@@ -102,9 +102,84 @@ function AdminPropertyTable({ items, pending, onHide, onUnhide, onArchive, onPer
   const [archiveTarget, setArchiveTarget] = useState<{ id: string; title: string } | null>(null);
   const statusLabels: Record<string, string> = { pending: "قيد المراجعة", verified: "معتمد", needs_changes: "يحتاج تعديل", rejected: "مرفوض", draft: "مسودة" };
   const availabilityLabels: Record<string, string> = { available: "متاح", reserved: "محجوز", rented: "مؤجر", hidden: "مخفي" };
-  return <><div className="overflow-x-auto rounded-2xl border border-[#e2e8ee] bg-white shadow-sm"><table className="min-w-[760px] w-full text-right"><thead className="bg-[#f8fafc] text-xs font-black text-[#486276]"><tr><th className="px-4 py-3">العقار</th><th className="px-4 py-3">المالك</th><th className="px-4 py-3">التحقق</th><th className="px-4 py-3">الظهور</th><th className="px-4 py-3 text-left">الإجراءات</th></tr></thead><tbody>{items.map(item => { const archived = Boolean(item.deletedAt); const hidden = item.availabilityStatus === "hidden"; return <tr key={item.id} className="border-t border-[#eef2f5] text-sm"><td className="max-w-[220px] px-4 py-3"><b className="block truncate">{item.title}</b><span className="mt-1 block truncate text-xs text-[#64748b]">{item.area}، {item.city}</span></td><td className="px-4 py-3 font-bold text-[#475569]">{item.owner?.fullName ?? "—"}</td><td className="px-4 py-3"><Badge className={`border-0 ${item.verificationStatus === "verified" ? "bg-[#e7f6ef] text-[#059669]" : item.verificationStatus === "pending" ? "bg-[#fff5df] text-[#a96903]" : "bg-[#f1f5f9] text-[#64748b]"}`}>{statusLabels[item.verificationStatus] ?? item.verificationStatus}</Badge></td><td className="px-4 py-3">{archived ? <Badge className="border-0 bg-[#f1f5f9] text-[#64748b]">مؤرشف</Badge> : <Badge className={`border-0 ${hidden ? "bg-[#fef2f2] text-[#b91c1c]" : "bg-[#eff6ff] text-[#2563eb]"}`}>{availabilityLabels[item.availabilityStatus] ?? item.availabilityStatus}</Badge></td><td className="px-4 py-3"><div className="flex flex-wrap gap-1.5">{archived ? <Button type="button" variant="outline" disabled={pending} onClick={() => { setDeleteTarget({ id: item.id, title: item.title }); }} className="h-8 rounded-lg border-[#f0b8b0] px-2.5 text-xs font-extrabold text-[#b74a3b]"><Trash2 className="ml-1 h-3.5 w-3.5" />حذف نهائي</Button> : <>{hidden ? <Button type="button" variant="outline" disabled={pending} onClick={() => onUnhide(item.id)} className="h-8 rounded-lg border-[#dbe4eb] px-2.5 text-xs font-extrabold text-[#059669]"><Eye className="ml-1 h-3.5 w-3.5" />إظهار</Button> : <Button type="button" variant="outline" disabled={pending} onClick={() => onHide(item.id)} className="h-8 rounded-lg border-[#dbe4eb] px-2.5 text-xs font-extrabold text-[#475569]"><EyeOff className="ml-1 h-3.5 w-3.5" />إخفاء</Button>}<Button type="button" variant="outline" disabled={pending} onClick={() => setArchiveTarget({ id: item.id, title: item.title })} className="h-8 rounded-lg border-[#dbe4eb] px-2.5 text-xs font-extrabold text-[#8f5e0b]"><Archive className="ml-1 h-3.5 w-3.5" />أرشفة</Button></>}</div></td></tr>; })}</tbody></table></div>
-    <Dialog open={Boolean(archiveTarget)} onOpenChange={open => { if (!open) setArchiveTarget(null); }}><DialogContent dir="rtl" className="max-w-md rounded-[24px] text-right"><DialogHeader><DialogTitle className="text-right text-lg font-black">تأكيد الأرشفة</DialogTitle><DialogDescription className="text-right">سيتم إخفاء العقار «{archiveTarget?.title}» من النتائج وطابور المراجعة مع الاحتفاظ بجميع بياناته وسجلاته.</DialogDescription></DialogHeader><div className="flex gap-2 p-5 pt-0"><Button type="button" variant="outline" onClick={() => setArchiveTarget(null)} className="h-10 flex-1 rounded-xl">إلغاء</Button><Button type="button" disabled={pending} onClick={() => { if (archiveTarget) { onArchive(archiveTarget.id); setArchiveTarget(null); } }} className="h-10 flex-1 rounded-xl bg-[#8f5e0b] font-extrabold text-white hover:bg-[#7a4f08]">تأكيد الأرشفة</Button></div></DialogContent></Dialog>
-    <Dialog open={Boolean(deleteTarget)} onOpenChange={open => { if (!open) { setDeleteTarget(null); setConfirmText(""); } }}><DialogContent dir="rtl" className="max-w-md rounded-[24px] text-right"><DialogHeader><DialogTitle className="text-right text-lg font-black">حذف نهائي للعقار</DialogTitle><DialogDescription className="text-right">سيُحذف العقار «{deleteTarget?.title}» وكل وسائطه نهائياً ولا يمكن التراجع. اكتب اسم العقار للتأكيد.</DialogDescription></DialogHeader><div className="space-y-3 p-5 pt-0"><input value={confirmText} onChange={event => setConfirmText(event.target.value)} placeholder={deleteTarget?.title ?? ""} className="h-11 w-full rounded-xl border border-[#cbd5e1] bg-white px-3 text-sm outline-none focus:border-[#b74a3b]" /><div className="flex gap-2"><Button type="button" variant="outline" onClick={() => { setDeleteTarget(null); setConfirmText(""); }} className="h-10 flex-1 rounded-xl">إلغاء</Button><Button type="button" disabled={pending || confirmText.trim() !== deleteTarget?.title} onClick={() => { if (deleteTarget) { onPermanentlyDelete(deleteTarget.id, deleteTarget.title); setDeleteTarget(null); setConfirmText(""); } }} className="h-10 flex-1 rounded-xl bg-[#b91c1c] font-extrabold text-white hover:bg-[#991b1b]">حذف نهائي</Button></div></div></DialogContent></Dialog>
+  return <>
+    <div className="overflow-x-auto rounded-2xl border border-[#e2e8ee] bg-white shadow-sm">
+      <table className="min-w-[760px] w-full text-right">
+        <thead className="bg-[#f8fafc] text-xs font-black text-[#486276]">
+          <tr>
+            <th className="px-4 py-3">العقار</th>
+            <th className="px-4 py-3">المالك</th>
+            <th className="px-4 py-3">التحقق</th>
+            <th className="px-4 py-3">الظهور</th>
+            <th className="px-4 py-3 text-left">الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map(item => {
+            const archived = Boolean(item.deletedAt);
+            const hidden = item.availabilityStatus === "hidden";
+            return (
+              <tr key={item.id} className="border-t border-[#eef2f5] text-sm">
+                <td className="max-w-[220px] px-4 py-3">
+                  <b className="block truncate">{item.title}</b>
+                  <span className="mt-1 block truncate text-xs text-[#64748b]">{item.area}، {item.city}</span>
+                </td>
+                <td className="px-4 py-3 font-bold text-[#475569]">{item.owner?.fullName ?? "—"}</td>
+                <td className="px-4 py-3">
+                  <Badge className={`border-0 ${item.verificationStatus === "verified" ? "bg-[#e7f6ef] text-[#059669]" : item.verificationStatus === "pending" ? "bg-[#fff5df] text-[#a96903]" : "bg-[#f1f5f9] text-[#64748b]"}`}>
+                    {statusLabels[item.verificationStatus] ?? item.verificationStatus}
+                  </Badge>
+                </td>
+                <td className="px-4 py-3">
+                  {archived
+                    ? <Badge className="border-0 bg-[#f1f5f9] text-[#64748b]">مؤرشف</Badge>
+                    : <Badge className={`border-0 ${hidden ? "bg-[#fef2f2] text-[#b91c1c]" : "bg-[#eff6ff] text-[#2563eb]"}`}>{availabilityLabels[item.availabilityStatus] ?? item.availabilityStatus}</Badge>}
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex flex-wrap gap-1.5">
+                    {archived
+                      ? <Button type="button" variant="outline" disabled={pending} onClick={() => setDeleteTarget({ id: item.id, title: item.title })} className="h-8 rounded-lg border-[#f0b8b0] px-2.5 text-xs font-extrabold text-[#b74a3b]"><Trash2 className="ml-1 h-3.5 w-3.5" />حذف نهائي</Button>
+                      : <>
+                        {hidden
+                          ? <Button type="button" variant="outline" disabled={pending} onClick={() => onUnhide(item.id)} className="h-8 rounded-lg border-[#dbe4eb] px-2.5 text-xs font-extrabold text-[#059669]"><Eye className="ml-1 h-3.5 w-3.5" />إظهار</Button>
+                          : <Button type="button" variant="outline" disabled={pending} onClick={() => onHide(item.id)} className="h-8 rounded-lg border-[#dbe4eb] px-2.5 text-xs font-extrabold text-[#475569]"><EyeOff className="ml-1 h-3.5 w-3.5" />إخفاء</Button>}
+                        <Button type="button" variant="outline" disabled={pending} onClick={() => setArchiveTarget({ id: item.id, title: item.title })} className="h-8 rounded-lg border-[#dbe4eb] px-2.5 text-xs font-extrabold text-[#8f5e0b]"><Archive className="ml-1 h-3.5 w-3.5" />أرشفة</Button>
+                      </>}
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+    <Dialog open={Boolean(archiveTarget)} onOpenChange={open => { if (!open) setArchiveTarget(null); }}>
+      <DialogContent dir="rtl" className="max-w-md rounded-[24px] text-right">
+        <DialogHeader>
+          <DialogTitle className="text-right text-lg font-black">تأكيد الأرشفة</DialogTitle>
+          <DialogDescription className="text-right">سيتم إخفاء العقار «{archiveTarget?.title}» من النتائج وطابور المراجعة مع الاحتفاظ بجميع بياناته وسجلاته.</DialogDescription>
+        </DialogHeader>
+        <div className="flex gap-2 p-5 pt-0">
+          <Button type="button" variant="outline" onClick={() => setArchiveTarget(null)} className="h-10 flex-1 rounded-xl">إلغاء</Button>
+          <Button type="button" disabled={pending} onClick={() => { if (archiveTarget) { onArchive(archiveTarget.id); setArchiveTarget(null); } }} className="h-10 flex-1 rounded-xl bg-[#8f5e0b] font-extrabold text-white hover:bg-[#7a4f08]">تأكيد الأرشفة</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+    <Dialog open={Boolean(deleteTarget)} onOpenChange={open => { if (!open) { setDeleteTarget(null); setConfirmText(""); } }}>
+      <DialogContent dir="rtl" className="max-w-md rounded-[24px] text-right">
+        <DialogHeader>
+          <DialogTitle className="text-right text-lg font-black">حذف نهائي للعقار</DialogTitle>
+          <DialogDescription className="text-right">سيُحذف العقار «{deleteTarget?.title}» وكل وسائطه نهائياً ولا يمكن التراجع. اكتب اسم العقار للتأكيد.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3 p-5 pt-0">
+          <input value={confirmText} onChange={event => setConfirmText(event.target.value)} placeholder={deleteTarget?.title ?? ""} className="h-11 w-full rounded-xl border border-[#cbd5e1] bg-white px-3 text-sm outline-none focus:border-[#b74a3b]" />
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" onClick={() => { setDeleteTarget(null); setConfirmText(""); }} className="h-10 flex-1 rounded-xl">إلغاء</Button>
+            <Button type="button" disabled={pending || confirmText.trim() !== deleteTarget?.title} onClick={() => { if (deleteTarget) { onPermanentlyDelete(deleteTarget.id, deleteTarget.title); setDeleteTarget(null); setConfirmText(""); } }} className="h-10 flex-1 rounded-xl bg-[#b91c1c] font-extrabold text-white hover:bg-[#991b1b]">حذف نهائي</Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   </>;
 }
 
