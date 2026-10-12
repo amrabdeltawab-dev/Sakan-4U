@@ -15,7 +15,6 @@ vi.mock("./supabase", () => ({
     })),
   },
   supabasePublic: {},
-  type SupabaseRuntimeEnv: {},
 }));
 
 vi.mock("./runtimeEnv", () => ({ getRuntimeEnvValue: () => "test" }));

@@ -34,7 +34,7 @@ export async function sendSavedSearchMatchEmails(
     const html = `<div dir="rtl"><h2>إعلان جديد مطابق لبحثك المحفوظ</h2><p>تم نشر عقار <strong>${title}</strong> في ${area} بسعر ${price} جنيه/شهرياً، وهو مطابق لمعايير البحث الذي حفظته على Sakan 4U.</p><p>يمكنك عرض الإعلان وإرسال طلب معاينة من المنصة.</p></div>`;
 
     let sent = 0;
-    for (const search of searches ?? []) {
+    for (const search of (searches ?? []) as any[]) {
       const email = search.profiles?.email;
       if (!email) continue;
       try {
