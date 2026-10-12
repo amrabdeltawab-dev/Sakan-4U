@@ -3,6 +3,7 @@ import { adminProcedure, protectedProcedure, publicProcedure, router, superAdmin
 import * as db from "./db";
 import { sendBookingNotification, sendBookingNotificationToOwner, sendBookingNotificationToStudent, sendBookingNotificationToStaff, type BookingNotificationKind } from "./bookingNotifications";
 import { sendPropertyReviewEmail, sendPropertySubmittedEmail, sendOwnerLeadEmail } from "./propertyNotifications";
+import { sendSavedSearchMatchEmails } from "./savedSearchNotifications";
 
 const propertyType = z.enum(["apartment", "studio", "room", "shared_room"]);
 const suitability = z.enum(["male", "female", "mixed"]);
@@ -48,6 +49,7 @@ export const appRouter = router({
     deletionEligibility: protectedProcedure.input(z.object({ id: z.string().uuid() })).query(({ ctx, input }) => { requireOwner(ctx.user.appRole); return db.getOwnerPropertyDeletionEligibility(ctx.supabase, input.id); }),
     setAvailability: protectedProcedure.input(z.object({ id: z.string().uuid(), availabilityStatus: availability })).mutation(({ ctx, input }) => { requireOwner(ctx.user.appRole); return db.setOwnerPropertyAvailability(ctx.supabase, input.id, input.availabilityStatus); }),
     delete: protectedProcedure.input(z.object({ id: z.string().uuid() })).mutation(({ ctx, input }) => { requireOwner(ctx.user.appRole); return db.deleteOwnerProperty(ctx.supabase, ctx.user.id, input.id); }),
+    ownerWeeklyViews: protectedProcedure.query(({ ctx }) => { requireOwner(ctx.user.appRole); return db.getOwnerWeeklyPropertyViews(ctx.user.id); }),
   }),
   favorites: router({
     ids: protectedProcedure.query(({ ctx }) => { requireStudent(ctx.user.appRole); return db.listStudentFavoritePropertyIds(ctx.supabase); }),
@@ -119,7 +121,7 @@ export const appRouter = router({
     reviewOwnerApplication: adminProcedure.input(z.object({ applicationId: z.string().uuid(), decision: z.enum(["approved", "rejected"]), note: z.string().max(1000).optional() })).mutation(({ ctx, input }) => db.reviewOwnerApplication(ctx.user.id, input)),
     updateExactLocation: adminProcedure.input(z.object({ propertyId: z.string().uuid(), exactLat: z.number().min(-90).max(90), exactLng: z.number().min(-180).max(180) })).mutation(({ ctx, input }) => db.updateStaffExactLocation(ctx.supabase, input.propertyId, input.exactLat, input.exactLng)),
     updatePropertyDescription: adminProcedure.input(z.object({ propertyId: z.string().uuid(), description: z.string().trim().min(db.MIN_PROPERTY_DESCRIPTION_LENGTH, db.PROPERTY_DESCRIPTION_VALIDATION_MESSAGE).max(5000) })).mutation(({ ctx, input }) => db.updateStaffPropertyDescription(ctx.supabase, input.propertyId, input.description)),
-    review: adminProcedure.input(z.object({ propertyId: z.string().uuid(), status: z.enum(["VERIFIED", "NEEDS_CHANGES", "REJECTED"]), reason: z.string().max(1000).optional(), mediaQualityIssue: z.boolean().optional(), ownerIdentityVerified: z.boolean().optional(), propertyVideoVerified: z.boolean().optional(), locationVerified: z.boolean().optional(), availabilityVerified: z.boolean().optional(), propertyPhotosQualityVerified: z.boolean().optional() })).mutation(async ({ ctx, input }) => { if (input.status !== "VERIFIED" && !input.reason?.trim()) throw new Error("سبب القرار مطلوب عند طلب تعديل أو رفض الإعلان."); if (input.status === "REJECTED" && input.mediaQualityIssue && input.reason!.trim().length < 12) throw new Error("اكتب سبباً واضحاً لا يقل عن 12 حرفاً عند رفض الصور لجودتها أو ملاءمتها."); const result = await db.reviewProperty(ctx.supabase, ctx.user.id, { ...input, status: input.status.toLowerCase() }); const decision = input.status.toLowerCase() as "verified" | "needs_changes" | "rejected"; await sendPropertyReviewEmail(input.propertyId, decision, input.reason, ctx.env); return result; }),
+    review: adminProcedure.input(z.object({ propertyId: z.string().uuid(), status: z.enum(["VERIFIED", "NEEDS_CHANGES", "REJECTED"]), reason: z.string().max(1000).optional(), mediaQualityIssue: z.boolean().optional(), ownerIdentityVerified: z.boolean().optional(), propertyVideoVerified: z.boolean().optional(), locationVerified: z.boolean().optional(), availabilityVerified: z.boolean().optional(), propertyPhotosQualityVerified: z.boolean().optional() })).mutation(async ({ ctx, input }) => { if (input.status !== "VERIFIED" && !input.reason?.trim()) throw new Error("سبب القرار مطلوب عند طلب تعديل أو رفض الإعلان."); if (input.status === "REJECTED" && input.mediaQualityIssue && input.reason!.trim().length < 12) throw new Error("اكتب سبباً واضحاً لا يقل عن 12 حرفاً عند رفض الصور لجودتها أو ملاءمتها."); const result = await db.reviewProperty(ctx.supabase, ctx.user.id, { ...input, status: input.status.toLowerCase() }); const decision = input.status.toLowerCase() as "verified" | "needs_changes" | "rejected"; await sendPropertyReviewEmail(input.propertyId, decision, input.reason, ctx.env); if (input.status === "VERIFIED") { try { const matchResult = await db.notifyMatchingSavedSearches(input.propertyId, result?.title ?? ""); await sendSavedSearchMatchEmails(input.propertyId, matchResult.notifiedCount, ctx.env); } catch { /* best-effort */ } } return result; }),
     publishMedia: adminProcedure.input(z.object({ propertyId: z.string().uuid(), media: z.array(z.object({ mediaId: z.string().uuid(), webpBase64: z.string().min(1) })).min(1).max(db.MAX_PROPERTY_PHOTO_COUNT) })).mutation(({ ctx, input }) => db.publishApprovedMediaFromBytes(input.propertyId, input.media)),
     hideProperty: adminProcedure.input(z.object({ propertyId: z.string().uuid() })).mutation(({ ctx, input }) => db.adminHideProperty(ctx.supabase, input.propertyId)),
     unhideProperty: adminProcedure.input(z.object({ propertyId: z.string().uuid() })).mutation(({ ctx, input }) => db.adminUnhideProperty(ctx.supabase, input.propertyId)),
@@ -143,6 +145,12 @@ export const appRouter = router({
     deleteUser: superAdminProcedure.input(z.object({ userId: z.string().uuid() })).mutation(({ ctx, input }) => db.deleteUserWithAudit(ctx.user.id, input.userId)),
     propertyDeletionEligibility: superAdminProcedure.input(z.object({ propertyId: z.string().uuid() })).query(({ ctx, input }) => db.getSuperAdminPropertyDeletionEligibility(ctx.supabase, input.propertyId)),
     deleteProperty: superAdminProcedure.input(z.object({ propertyId: z.string().uuid() })).mutation(({ ctx, input }) => db.deleteSuperAdminProperty(ctx.supabase, input.propertyId)),
+  }),
+  savedSearches: router({
+    list: protectedProcedure.query(({ ctx }) => { requireStudent(ctx.user.appRole); return db.listStudentSavedSearches(ctx.supabase); }),
+    create: protectedProcedure.input(z.object({ area: z.string().trim().max(120).optional(), maxPrice: z.number().int().positive().optional(), minBeds: z.number().int().positive().optional() })).mutation(({ ctx, input }) => { requireStudent(ctx.user.appRole); return db.createSavedSearch(ctx.supabase, ctx.user.id, input); }),
+    delete: protectedProcedure.input(z.object({ searchId: z.string().uuid() })).mutation(({ ctx, input }) => { requireStudent(ctx.user.appRole); return db.deleteSavedSearch(ctx.supabase, input.searchId, ctx.user.id); }),
+    toggle: protectedProcedure.input(z.object({ searchId: z.string().uuid(), active: z.boolean() })).mutation(({ ctx, input }) => { requireStudent(ctx.user.appRole); return db.toggleSavedSearchActive(ctx.supabase, input.searchId, input.active); }),
   }),
   leads: router({
     submitOwnerLead: publicProcedure.input(z.object({

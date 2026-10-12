@@ -1228,3 +1228,82 @@ export async function updateOwnerLeadStatus(leadId: string, status: "new" | "con
   fail(error);
   return camelize(data);
 }
+
+export type SavedSearchInput = { area?: string | null; maxPrice?: number | null; minBeds?: number | null };
+
+export async function createSavedSearch(client: any, studentId: string, input: SavedSearchInput) {
+  const { data, error } = await client.from("saved_searches").insert({
+    student_id: studentId,
+    area: input.area?.trim() || null,
+    max_price: input.maxPrice ?? null,
+    min_beds: input.minBeds ?? null,
+    active: true,
+  }).select("id, area, max_price, min_beds, active, created_at").single();
+  fail(error);
+  return camelize(data);
+}
+
+export async function listStudentSavedSearches(client: any) {
+  const { data, error } = await client.from("saved_searches").select("id, area, max_price, min_beds, active, created_at").order("created_at", { ascending: false });
+  fail(error);
+  return camelize(data ?? []);
+}
+
+export async function deleteSavedSearch(client: any, searchId: string, studentId: string) {
+  const { data, error } = await client.from("saved_searches").delete().eq("id", searchId).eq("student_id", studentId).select("id").maybeSingle();
+  fail(error);
+  if (!data) throw new Error("لم يتم العثور على هذا البحث المحفوظ أو لا تملك صلاحية حذفه.");
+  return { deleted: true };
+}
+
+export async function toggleSavedSearchActive(client: any, searchId: string, active: boolean) {
+  const { data, error } = await client.from("saved_searches").update({ active }).eq("id", searchId).select("id, active").maybeSingle();
+  fail(error);
+  if (!data) throw new Error("لم يتم العثور على هذا البحث المحفوظ.");
+  return camelize(data);
+}
+
+export type SavedSearchMatch = { studentId: string; studentEmail: string | null; area: string | null; maxPrice: number | null; minBeds: number | null };
+
+export async function findMatchingSavedSearches(propertyId: string): Promise<SavedSearchMatch[]> {
+  const { data: property, error: propertyError } = await supabaseAdmin.from("properties").select("area, monthly_price, capacity, verification_status, availability_status, deleted_at").eq("id", propertyId).maybeSingle();
+  fail(propertyError);
+  if (!property || property.deleted_at || property.verification_status !== "verified" || property.availability_status !== "available") return [];
+  const { data: searches, error: searchError } = await supabaseAdmin.from("saved_searches").select("student_id, area, max_price, min_beds, profiles!inner(email)").eq("active", true);
+  fail(searchError);
+  return (searches ?? []).filter((s: any) => {
+    if (s.area && property.area !== s.area) return false;
+    if (s.max_price !== null && s.max_price !== undefined && property.monthly_price > s.max_price) return false;
+    if (s.min_beds !== null && s.min_beds !== undefined && property.capacity < s.min_beds) return false;
+    return true;
+  }).map((s: any) => ({ studentId: s.student_id, studentEmail: s.profiles?.email ?? null, area: s.area, maxPrice: s.max_price, minBeds: s.min_beds }));
+}
+
+export async function notifyMatchingSavedSearches(propertyId: string, propertyTitle: string) {
+  const matches = await findMatchingSavedSearches(propertyId);
+  for (const match of matches) {
+    try {
+      await supabaseAdmin.from("notifications").insert({
+        user_id: match.studentId,
+        notification_type: "saved_search_match",
+        title: "إعلان جديد مطابق لبحثك المحفوظ",
+        message: `عقار «${propertyTitle}» يتطابق مع معايير البحث الذي حفظته${match.area ? ` في ${match.area}` : ""}.`,
+        related_property_id: propertyId,
+      });
+    } catch { /* best-effort */ }
+  }
+  return { notifiedCount: matches.length };
+}
+
+export async function getOwnerWeeklyPropertyViews(ownerId: string) {
+  const { data: properties, error: propError } = await supabaseAdmin.from("properties").select("id, title, views_count").eq("owner_id", ownerId).is("deleted_at", null).order("updated_at", { ascending: false });
+  fail(propError);
+  const propIds = (properties ?? []).map((p: any) => p.id);
+  if (!propIds.length) return [];
+  const sevenDaysAgo = new Date(Date.now() - 7 * 86_400_000).toISOString();
+  const { data: recentSessions, error: sessionError } = await supabaseAdmin.from("property_view_sessions").select("property_id").in("property_id", propIds).gte("recorded_at", sevenDaysAgo);
+  fail(sessionError);
+  const weeklyCountMap = new Map<string, number>();
+  for (const session of recentSessions ?? []) weeklyCountMap.set(session.property_id, (weeklyCountMap.get(session.property_id) ?? 0) + 1);
+  return (properties ?? []).map((p: any) => ({ id: p.id, title: p.title, totalViews: p.views_count ?? 0, weeklyViews: weeklyCountMap.get(p.id) ?? 0 }));
+}
