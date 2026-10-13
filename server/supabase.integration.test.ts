@@ -7,11 +7,16 @@ import { cleanupPropertyStorage, listSimilarPublicProperties } from "./db";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
 
+const supabaseUrl = getRuntimeEnvValue("VITE_SUPABASE_URL");
+const supabasePublishableKey = getRuntimeEnvValue("VITE_SUPABASE_PUBLISHABLE_KEY");
+const supabaseServiceRoleKey = getRuntimeEnvValue("SUPABASE_SERVICE_ROLE_KEY");
+const hasSupabaseSecrets = Boolean(supabaseUrl && supabasePublishableKey && supabaseServiceRoleKey);
+
 const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 const password = "SakenoTest!2026";
-const testRuntimeEnv = { VITE_SUPABASE_URL: getRuntimeEnvValue("VITE_SUPABASE_URL"), VITE_SUPABASE_PUBLISHABLE_KEY: getRuntimeEnvValue("VITE_SUPABASE_PUBLISHABLE_KEY"), SUPABASE_SERVICE_ROLE_KEY: getRuntimeEnvValue("SUPABASE_SERVICE_ROLE_KEY"), SUPABASE_BOOTSTRAP_SUPER_ADMIN_EMAIL: getRuntimeEnvValue("SUPABASE_BOOTSTRAP_SUPER_ADMIN_EMAIL") };
-setSupabaseRuntime(createSupabaseClients(testRuntimeEnv));
-const anonymousClient = createClient(getRuntimeEnvValue("VITE_SUPABASE_URL")!, getRuntimeEnvValue("VITE_SUPABASE_PUBLISHABLE_KEY")!, { auth: { autoRefreshToken: false, persistSession: false } });
+const testRuntimeEnv = { VITE_SUPABASE_URL: supabaseUrl, VITE_SUPABASE_PUBLISHABLE_KEY: supabasePublishableKey, SUPABASE_SERVICE_ROLE_KEY: supabaseServiceRoleKey, SUPABASE_BOOTSTRAP_SUPER_ADMIN_EMAIL: getRuntimeEnvValue("SUPABASE_BOOTSTRAP_SUPER_ADMIN_EMAIL") };
+if (hasSupabaseSecrets) setSupabaseRuntime(createSupabaseClients(testRuntimeEnv));
+const anonymousClient = createClient(supabaseUrl!, supabasePublishableKey!, { auth: { autoRefreshToken: false, persistSession: false } });
 const createdIds: string[] = [];
 let student: { id: string; token: string; email: string }; let otherStudent: { id: string; token: string; email: string }; let owner: { id: string; token: string; email: string }; let intruderOwner: { id: string; token: string; email: string }; let admin: { id: string; token: string; email: string }; let superAdmin: { id: string; token: string; email: string }; let propertyId = ""; let privatePath = ""; let publicPath = "";
 
