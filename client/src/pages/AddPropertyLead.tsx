@@ -8,10 +8,15 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "@/lib/appToast";
 import { CheckCircle2, LoaderCircle } from "lucide-react";
 import { useLocation } from "wouter";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const areaOptions = ["صلاح سالم", "البرج", "بني سويف الجديدة", "منشأة السادات", "الواسطي", "ناصر", "ببا", "سمسطاط"];
 
 export default function AddPropertyLead() {
+  usePageMeta({
+    title: "أضف عقارك | Sakan 4U",
+    description: "سجّل بياناتك ودع فريق Sakan 4U يتواصل معك لإضافة عقارك في منصة سكن الطلاب ببني سويف. لا تحتاج إلى حساب.",
+  });
   const [, navigate] = useLocation();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");

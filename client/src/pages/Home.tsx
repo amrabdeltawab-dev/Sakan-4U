@@ -13,6 +13,33 @@ import { matchesPropertyFilters, type GenderFilter } from "@/lib/propertyFilters
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
+import { usePageMeta } from "@/hooks/usePageMeta";
+
+const homeJsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Sakan 4U",
+    url: typeof window !== "undefined" ? window.location.origin : "https://sakan4u.com",
+    description: "منصة سكن طلابي موثّق في بني سويف",
+    areaServed: "Beni Suef, Egypt",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Sakan 4U",
+    url: typeof window !== "undefined" ? window.location.origin : "https://sakan4u.com",
+    inLanguage: "ar-EG",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${typeof window !== "undefined" ? window.location.origin : "https://sakan4u.com"}/?query={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  },
+];
 import { ArrowLeft, Bell, Building2, CheckCircle2, ChevronDown, Filter, MapPinned, Search, SearchX, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import { actionErrorMessages } from "@/lib/errorMessages";
 import { showActionError, toast } from "@/lib/appToast";
@@ -22,6 +49,11 @@ type RentTypeFilter = "all" | "full" | "bed";
 const sortLabels: Record<SortOption, string> = { newest: "الأحدث", price_asc: "الأقل سعراً", price_desc: "الأعلى سعراً" };
 
 export default function Home() {
+  usePageMeta({
+    title: "سكن طلابي في بني سويف | Sakan 4U",
+    description: "شقق للطلاب قرب جامعة بني سويف — سكن طلابي موثّق ومراجع قبل النشر. ابحث وصفّ النتائج حسب السعر والمنطقة والنوع دون رسوم.",
+    jsonLd: homeJsonLd,
+  });
   const { user } = useAuth(); const [, navigate] = useLocation(); const utils = trpc.useUtils();
   const [query, setQuery] = useState(""); const [area, setArea] = useState(""); const [type, setType] = useState(""); const [rentType, setRentType] = useState<RentTypeFilter>("all"); const [maxPrice, setMaxPrice] = useState(""); const [rooms, setRooms] = useState(""); const [gender, setGender] = useState<GenderFilter>(""); const [distanceMax, setDistanceMax] = useState(""); const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]); const [sort, setSort] = useState<SortOption>("newest"); const [filtersOpen, setFiltersOpen] = useState(false); const [visibleCount, setVisibleCount] = useState(6); const [compareIds, setCompareIds] = useState<string[]>([]); const [compareOpen, setCompareOpen] = useState(false);
   const input = useMemo(() => ({ query: query || undefined, area: area || undefined, propertyType: type || undefined, rentType: rentType === "all" ? undefined : rentType, maxPrice: maxPrice ? Number(maxPrice) : undefined, minBedrooms: rooms ? Number(rooms) : undefined, amenities: selectedAmenities.length ? selectedAmenities : undefined }), [query, area, type, rentType, maxPrice, rooms, selectedAmenities]);

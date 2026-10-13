@@ -11,6 +11,7 @@ import { formatEgp, normalizeProperty, propertyTypeLabels, rentPriceLabels, rent
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getPropertyViewSessionId } from "@/lib/propertyViewTracking";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import { ArrowLeft, ArrowRight, Archive, Bath, BedDouble, CheckCircle2, ChevronLeft, ChevronRight, CircleAlert, CookingPot, Expand, EyeOff, Heart, MapPin, PlayCircle, ReceiptText, Share2, ShieldCheck, Sparkles, Trash2, UsersRound, Wifi, X } from "lucide-react";
 import { actionErrorMessages } from "@/lib/errorMessages";
 import { showActionError, toast } from "@/lib/appToast";
@@ -64,17 +65,35 @@ export default function PropertyDetails() {
     setFavorite.mutate({ propertyId: id, saved: !isFavorite });
   };
 
-  useEffect(() => {
-    if (!property) return;
-    const defaultTitle = "Sakan 4U | Sakan 4U - سكن طلابي";
-    const defaultDescription = "منصة حجز سكن الطلاب ومطابقة الطلبات المعتمدة في بني سويف.";
-    const description = `${formatEgp(property.monthlyPrice)} ${rentPriceLabels[property.rentType]} · ${property.approximateLocation}`;
-    document.title = `${property.title} | Sakan 4U`;
-    let descriptionTag = document.querySelector<HTMLMetaElement>('meta[name="description"]');
-    if (!descriptionTag) { descriptionTag = document.createElement("meta"); descriptionTag.name = "description"; document.head.appendChild(descriptionTag); }
-    descriptionTag.content = description;
-    return () => { document.title = defaultTitle; descriptionTag!.content = defaultDescription; };
-  }, [property]);
+  const propertyTitle = property ? `${property.title} — ${formatEgp(property.monthlyPrice)}ج/${property.rentType === "bed" ? "سرير" : "شهر"} | Sakan 4U` : "Sakan 4U | سكن طلابي موثّق في بني سويف";
+  const propertyDescription = property
+    ? `${property.title} في ${property.approximateLocation} — ${formatEgp(property.monthlyPrice)} ${rentPriceLabels[property.rentType]} · ${property.bedrooms} غرف · سعة ${property.capacity} · ${property.availabilityStatus === "AVAILABLE" ? "متاح الآن" : property.availabilityStatus === "RESERVED" ? "محجوز للمعاينة" : "غير متاح"}. سكن طلابي موثّق في بني سويف.`
+    : "منصة سكن طلابي موثّق في بني سويف.";
+  const propertyJsonLd = property ? {
+    "@context": "https://schema.org",
+    "@type": "Residence",
+    name: property.title,
+    description: property.description,
+    url: typeof window !== "undefined" ? window.location.href : undefined,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: property.approximateLocation,
+      addressRegion: "بني سويف",
+      addressCountry: "EG",
+    },
+    numberOfRooms: property.bedrooms,
+    numberOfBathroomsTotal: property.bathrooms,
+    occupancy: { "@type": "QuantitativeValue", maxValue: property.capacity },
+    floorLevel: property.furnished ? "مفروش" : "غير مفروش",
+    offers: {
+      "@type": "Offer",
+      price: property.monthlyPrice,
+      priceCurrency: "EGP",
+      availability: property.availabilityStatus === "AVAILABLE" ? "https://schema.org/InStock" : "https://schema.org/Reserved",
+    },
+  } : undefined;
+
+  usePageMeta({ title: propertyTitle, description: propertyDescription, jsonLd: propertyJsonLd });
 
   useEffect(() => {
     if (!property?.id) return;
