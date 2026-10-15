@@ -16,7 +16,7 @@ const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 const password = "SakenoTest!2026";
 const testRuntimeEnv = { VITE_SUPABASE_URL: supabaseUrl, VITE_SUPABASE_PUBLISHABLE_KEY: supabasePublishableKey, SUPABASE_SERVICE_ROLE_KEY: supabaseServiceRoleKey, SUPABASE_BOOTSTRAP_SUPER_ADMIN_EMAIL: getRuntimeEnvValue("SUPABASE_BOOTSTRAP_SUPER_ADMIN_EMAIL") };
 if (hasSupabaseSecrets) setSupabaseRuntime(createSupabaseClients(testRuntimeEnv));
-const anonymousClient = createClient(supabaseUrl!, supabasePublishableKey!, { auth: { autoRefreshToken: false, persistSession: false } });
+const anonymousClient = hasSupabaseSecrets ? createClient(supabaseUrl!, supabasePublishableKey!, { auth: { autoRefreshToken: false, persistSession: false } }) : null as unknown as ReturnType<typeof createClient>;
 const createdIds: string[] = [];
 let student: { id: string; token: string; email: string }; let otherStudent: { id: string; token: string; email: string }; let owner: { id: string; token: string; email: string }; let intruderOwner: { id: string; token: string; email: string }; let admin: { id: string; token: string; email: string }; let superAdmin: { id: string; token: string; email: string }; let propertyId = ""; let privatePath = ""; let publicPath = "";
 
@@ -58,7 +58,7 @@ async function completeViewingForDecision(bookingId: string) {
   expect((await adminClient.rpc("complete_viewing", { target_booking_id: bookingId })).error).toBeNull();
 }
 
-describe.sequential("Supabase Auth and RLS integration", () => {
+describe.sequential.skipIf(!hasSupabaseSecrets)("Supabase Auth and RLS integration", () => {
   beforeAll(async () => {
     student = await createConfirmedUser("student"); otherStudent = await createConfirmedUser("other-student"); owner = await createConfirmedUser("owner"); intruderOwner = await createConfirmedUser("intruder-owner"); admin = await createConfirmedUser("admin"); superAdmin = await createConfirmedUser("super-admin");
     await supabaseAdmin.from("profiles").update({ role: "owner" }).eq("id", owner.id);

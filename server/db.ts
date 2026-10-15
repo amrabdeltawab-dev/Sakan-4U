@@ -1,11 +1,6 @@
 import { supabaseAdmin, supabasePublic, type AppRole } from "./supabase";
 import { assertProcessablePropertyImage } from "./watermark";
 
-// Compatibility exports retained only while unused legacy integration shims remain in the source tree.
-// The active Express context no longer calls these functions.
-export async function upsertUser(_user: unknown): Promise<void> { return; }
-export async function getUserByOpenId(_openId: string): Promise<any | undefined> { return undefined; }
-
 type Filters = { query?: string; area?: string; propertyType?: string; rentType?: "full" | "bed"; genderSuitability?: string; minPrice?: number; maxPrice?: number; minBedrooms?: number; amenities?: string[] };
 type GenderPreference = "male" | "female" | "anyone";
 type PropertyInput = { title: string; propertyType: string; governorate: string; city: string; area: string; street?: string; approximateLocation?: string; latitude?: number; longitude?: number; exactLat: number; exactLng: number; description: string; monthlyPrice: number; bedrooms: number; bathrooms: number; capacity: number; rentType: "full" | "bed"; totalBeds?: number | null; genderPreference?: GenderPreference; genderSuitability?: string; furnished: boolean; amenities: string[]; availabilityStatus?: string; distanceToCampus?: string; utilitiesIncluded?: string[]; videoUrl?: string | null };

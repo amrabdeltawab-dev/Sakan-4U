@@ -32,7 +32,7 @@ describe("Legal, metadata, and crash-fallback readiness", () => {
     expect(sitemap).toContain("<loc>/terms</loc>");
     expect(sitemap).toContain("<loc>/privacy</loc>");
     expect(html).toContain('name="twitter:card" content="summary_large_image"');
-    expect(detail).toContain("document.title = `${property.title} | Sakan 4U`");
+    expect(detail).toContain("usePageMeta");
     expect(detail).toContain("property.approximateLocation");
     expect(vite).toContain("getPublicProperty");
     expect(vite).toContain('media.isPrimary)?.url ?? property.media?.[0]?.url');
