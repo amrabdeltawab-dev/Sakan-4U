@@ -1,7 +1,11 @@
 import { trpc } from "@/lib/trpc";
 import { supabase } from "@/lib/supabase";
+import { toast } from "@/lib/appToast";
 import type { Session } from "@supabase/supabase-js";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "wouter";
+
+const SESSION_EXPIRED_TOAST = "انتهت جلستك — سجّل دخول مجددًا";
 
 export type SakenoUser = {
   id: string;
@@ -29,7 +33,9 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
   const [session, setSession] = useState<Session | null>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const utils = trpc.useUtils();
+  const [, navigate] = useLocation();
   const me = trpc.auth.me.useQuery(undefined, { enabled: Boolean(session), retry: false, refetchOnWindowFocus: false });
+  const sessionClearedRef = useRef(false);
 
   useEffect(() => {
     let mounted = true;
@@ -48,6 +54,18 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
     });
     return () => { mounted = false; listener.subscription.unsubscribe(); };
   }, [utils]);
+
+  useEffect(() => {
+    if (sessionClearedRef.current || !me.error || !session) return;
+    const httpStatus = (me.error as { data?: { httpStatus?: number } }).data?.httpStatus;
+    if (httpStatus !== 401 && httpStatus !== 403) return;
+    sessionClearedRef.current = true;
+    void supabase.auth.signOut();
+    setSession(null);
+    utils.auth.me.setData(undefined, null);
+    toast.error(SESSION_EXPIRED_TOAST);
+    navigate("/login");
+  }, [me.error, session, utils, navigate]);
 
   const refresh = useCallback(async () => {
     const { data } = await supabase.auth.getSession();
